@@ -5,7 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b03af1d-0778-4812-a74b-0d11e4c7ea2f" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/download-isic.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/download-isic.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -16,6 +17,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Jupyter Notebook" />
+        <option value="Python Script" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
@@ -32,21 +35,28 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "feature/train",
     "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "C:/Users/user/PycharmProjects/medical-XAI-skin-lesion-classification/notebooks",
+    "last_opened_file_path": "C:/Users/user/PycharmProjects/medical-XAI-skin-lesion-classification/.dvc",
     "settings.editor.selected.configurable": "preferences.lookFeel"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\user\PycharmProjects\medical-XAI-skin-lesion-classification\.dvc" />
+      <recent name="C:\Users\user\PycharmProjects\medical-XAI-skin-lesion-classification\models" />
+      <recent name="C:\Users\user\PycharmProjects\medical-XAI-skin-lesion-classification\src\models" />
       <recent name="C:\Users\user\PycharmProjects\medical-XAI-skin-lesion-classification\notebooks" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\user\PycharmProjects\medical-XAI-skin-lesion-classification\src\backend\models" />
+      <recent name="C:\Users\user\PycharmProjects\medical-XAI-skin-lesion-classification\src" />
+      <recent name="C:\Users\user\PycharmProjects\medical-XAI-skin-lesion-classification" />
       <recent name="C:\Users\user\PycharmProjects\medical-XAI-skin-lesion-classification\scripts" />
     </key>
   </component>
@@ -66,5 +76,16 @@
       <updated>1761755834570</updated>
     </task>
     <servers />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/backend/app.py</url>
+          <line>1496</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

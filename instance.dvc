@@ -1,0 +1,6 @@
+outs:
+- md5: 7ef47e150c8376823fc65a52d7d3470f.dir
+  size: 49152
+  nfiles: 2
+  hash: md5
+  path: instance

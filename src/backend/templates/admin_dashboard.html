@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - {{ app_name }}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-bg: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            border-left: 5px solid var(--warning-color);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s;
+            border-top: 4px solid var(--secondary-color);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card.system {
+            border-top-color: var(--warning-color);
+        }
+
+        .stat-card.users {
+            border-top-color: var(--secondary-color);
+        }
+
+        .stat-card.analyses {
+            border-top-color: var(--accent-color);
+        }
+
+        .stat-card.storage {
+            border-top-color: var(--danger-color);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 15px;
+        }
+
+        .stat-card.system .stat-icon {
+            background: #fff3e0;
+            color: var(--warning-color);
+        }
+
+        .stat-card.users .stat-icon {
+            background: #e8f4fc;
+            color: var(--secondary-color);
+        }
+
+        .stat-card.analyses .stat-icon {
+            background: #e8f5e9;
+            color: var(--accent-color);
+        }
+
+        .stat-card.storage .stat-icon {
+            background: #fde8e8;
+            color: var(--danger-color);
+        }
+
+        .stat-number {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .admin-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #e9ecef;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background: var(--light-bg);
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            color: var(--primary-color);
+            padding: 15px;
+        }
+
+        .table tbody tr {
+            transition: background 0.3s;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .table tbody td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .user-role {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .role-admin {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .role-medecin {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-active {
+            color: var(--accent-color);
+        }
+
+        .status-inactive {
+            color: var(--danger-color);
+        }
+
+        .btn-admin {
+            background: var(--warning-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-admin:hover {
+            background: #e67e22;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-admin-danger {
+            background: var(--danger-color);
+        }
+
+        .btn-admin-success {
+            background: var(--accent-color);
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        .system-alerts {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .alert-item {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+
+        .alert-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .alert-warning .alert-icon {
+            background: #fff3e0;
+            color: var(--warning-color);
+        }
+
+        .alert-success .alert-icon {
+            background: #e8f5e9;
+            color: var(--accent-color);
+        }
+
+        .alert-danger .alert-icon {
+            background: #fde8e8;
+            color: var(--danger-color);
+        }
+
+        .alert-info .alert-icon {
+            background: #e8f4fc;
+            color: var(--secondary-color);
+        }
+
+        .modal-admin .modal-dialog {
+            max-width: 600px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .section-title {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1" style="color: var(--primary-color);">
+                        <i class="fas fa-user-shield me-2"></i> Administration
+                    </h2>
+                    <p class="text-muted mb-0">
+                        Gestion de la plateforme médicale
+                    </p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i> Dashboard
+                    </a>
+                    <button class="btn-admin" onclick="refreshStats()">
+                        <i class="fas fa-sync-alt me-2"></i> Actualiser
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="stats-grid">
+                <div class="stat-card system">
+                    <div class="stat-icon">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <div class="stat-number">{{ stats.total_users }}</div>
+                    <div class="stat-label">Utilisateurs</div>
+                </div>
+
+                <div class="stat-card users">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-number">{{ stats.active_users }}</div>
+                    <div class="stat-label">Utilisateurs actifs</div>
+                </div>
+
+                <div class="stat-card analyses">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="stat-number">{{ stats.total_analyses }}</div>
+                    <div class="stat-label">Analyses totales</div>
+                </div>
+
+                <div class="stat-card storage">
+                    <div class="stat-icon">
+                        <i class="fas fa-hdd"></i>
+                    </div>
+                    <div class="stat-number">{{ stats.uploads_size_mb + stats.reports_size_mb|int }}</div>
+                    <div class="stat-label">Stockage (MB)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row mb-4">
+            <div class="col-lg-8">
+                <div class="admin-section">
+                    <h4 class="section-title">
+                        <span><i class="fas fa-chart-line me-2"></i> Activité de la plateforme</span>
+                        <select class="form-select form-select-sm w-auto" id="timeRange">
+                            <option value="7">7 derniers jours</option>
+                            <option value="30" selected>30 derniers jours</option>
+                            <option value="90">3 derniers mois</option>
+                        </select>
+                    </h4>
+
+                    <div class="chart-container">
+                        <canvas id="activityChart"></canvas>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="chart-container">
+                                <canvas id="diagnosisChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="chart-container">
+                                <canvas id="userActivityChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="system-alerts">
+                    <h4 class="section-title">
+                        <span><i class="fas fa-exclamation-circle me-2"></i> Alertes système</span>
+                        <span class="badge bg-danger">3</span>
+                    </h4>
+
+                    <div class="alert-item alert-warning">
+                        <div class="alert-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Stockage à 85%</h6>
+                            <p class="mb-0 small">Nettoyage recommandé</p>
+                        </div>
+                    </div>
+
+                    <div class="alert-item alert-success">
+                        <div class="alert-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Sauvegarde réussie</h6>
+                            <p class="mb-0 small">Dernière sauvegarde: 02:00</p>
+                        </div>
+                    </div>
+
+                    <div class="alert-item alert-info">
+                        <div class="alert-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">2 nouveaux utilisateurs</h6>
+                            <p class="mb-0 small">Cette semaine</p>
+                        </div>
+                    </div>
+
+                    <div class="alert-item alert-danger">
+                        <div class="alert-icon">
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Mise à jour disponible</h6>
+                            <p class="mb-0 small">Version 2.2.0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Info -->
+                <div class="admin-section mt-4">
+                    <h4 class="section-title">
+                        <i class="fas fa-info-circle me-2"></i> Informations système
+                    </h4>
+
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                            <span>Version</span>
+                            <span class="badge bg-info">{{ app_version }}</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                            <span>Modèle IA</span>
+                            <span class="badge bg-success">Actif</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                            <span>Base de données</span>
+                            <span class="badge bg-success">Connectée</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                            <span>Analyses aujourd'hui</span>
+                            <span class="badge bg-primary">{{ stats.today_analyses }}</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                            <span>Taille modèle</span>
+                            <span class="badge bg-secondary">{{ stats.model_size_mb }} MB</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Management -->
+        <div class="admin-section">
+            <h4 class="section-title">
+                <span><i class="fas fa-users me-2"></i> Gestion des utilisateurs</span>
+                <button class="btn-admin btn-admin-success" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                    <i class="fas fa-user-plus me-2"></i> Ajouter un utilisateur
+                </button>
+            </h4>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Email</th>
+                            <th>Rôle</th>
+                            <th>Statut</th>
+                            <th>Dernière connexion</th>
+                            <th>Analyses</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <!-- Users will be loaded dynamically -->
+                        <tr>
+                            <td colspan="8" class="text-center">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Chargement...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="admin-section">
+            <h4 class="section-title">
+                <i class="fas fa-history me-2"></i> Activité récente
+            </h4>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Utilisateur</th>
+                            <th>Action</th>
+                            <th>Détails</th>
+                            <th>IP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for activity in recent_activity %}
+                        <tr>
+                            <td>{{ activity.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>
+                                <strong>{{ activity.user.full_name if activity.user else 'N/A' }}</strong>
+                                <br>
+                                <small class="text-muted">{{ activity.user.email if activity.user else 'N/A' }}</small>
+                            </td>
+                            <td>
+                                <span class="badge {% if activity.predicted_class in ['MEL', 'SCC'] %}bg-danger
+                                                  {% elif activity.predicted_class in ['BCC', 'AKIEC'] %}bg-warning
+                                                  {% else %}bg-success{% endif %}">
+                                    Analyse {{ activity.predicted_class }}
+                                </span>
+                            </td>
+                            <td>
+                                {{ class_display_names.get(activity.predicted_class, activity.predicted_class) }}
+                                <br>
+                                <small>{{ (activity.confidence * 100)|round(1) }}% de confiance</small>
+                            </td>
+                            <td>
+                                <small class="text-muted">192.168.1.{{ loop.index }}</small>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- System Actions -->
+        <div class="admin-section">
+            <h4 class="section-title">
+                <i class="fas fa-cogs me-2"></i> Actions système
+            </h4>
+
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <button class="btn-admin w-100" onclick="backupDatabase()">
+                        <i class="fas fa-database me-2"></i> Sauvegarder BDD
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn-admin w-100" onclick="clearCache()">
+                        <i class="fas fa-broom me-2"></i> Vider le cache
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn-admin btn-admin-success w-100" onclick="runMaintenance()">
+                        <i class="fas fa-tools me-2"></i> Maintenance
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn-admin btn-admin-danger w-100" data-bs-toggle="modal" data-bs-target="#systemLogsModal">
+                        <i class="fas fa-file-alt me-2"></i> Voir les logs
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal fade" id="addUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-plus me-2"></i> Ajouter un utilisateur
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="addUserForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="newUserName" class="form-label">Nom complet *</label>
+                            <input type="text" class="form-control" id="newUserName" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="newUserEmail" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="newUserEmail" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="newUserRole" class="form-label">Rôle *</label>
+                            <select class="form-select" id="newUserRole" required>
+                                <option value="medecin">Médecin</option>
+                                <option value="admin">Administrateur</option>
+                                <option value="technicien">Technicien</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="newUserPassword" class="form-label">Mot de passe *</label>
+                            <input type="password" class="form-control" id="newUserPassword" required>
+                            <div class="form-text">Généré automatiquement si laissé vide</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="newUserInstitution" class="form-label">Établissement</label>
+                            <input type="text" class="form-control" id="newUserInstitution">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn-admin btn-admin-success">
+                            <i class="fas fa-save me-2"></i> Créer l'utilisateur
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-edit me-2"></i> Modifier l'utilisateur
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editUserForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="editUserId">
+                        <!-- Form will be loaded dynamically -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn-admin">
+                            <i class="fas fa-save me-2"></i> Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade modal-admin" id="systemLogsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-file-alt me-2"></i> Logs système
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="logs-container" style="max-height: 400px; overflow-y: auto;">
+                        <div class="log-entry">
+                            <span class="badge bg-info">INFO</span>
+                            <span class="text-muted">[2024-01-15 10:30:15]</span>
+                            <span>Démarrage du serveur</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="badge bg-success">SUCCESS</span>
+                            <span class="text-muted">[2024-01-15 10:32:45]</span>
+                            <span>Connexion utilisateur: admin@medical-xai.fr</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="badge bg-warning">WARNING</span>
+                            <span class="text-muted">[2024-01-15 11:15:22]</span>
+                            <span>Stockage à 85% de capacité</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="badge bg-danger">ERROR</span>
+                            <span class="text-muted">[2024-01-15 12:45:10]</span>
+                            <span>Erreur lors de l'analyse #ANA000123</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                    <button type="button" class="btn-admin" onclick="downloadLogs()">
+                        <i class="fas fa-download me-2"></i> Télécharger les logs
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load users table
+            loadUsersTable();
+
+            // Initialize charts
+            initCharts();
+
+            // Initialize form submissions
+            initForms();
+        });
+
+        function loadUsersTable() {
+            // In a real application, this would make an API call
+            const users = [
+                {
+                    id: 1,
+                    full_name: 'Dr. Admin Médical',
+                    email: 'admin@medical-xai.fr',
+                    role: 'admin',
+                    is_active: true,
+                    last_login: '2024-01-15 10:30:00',
+                    analysis_count: 45,
+                    institution: 'Hôpital Universitaire'
+                },
+                {
+                    id: 2,
+                    full_name: 'Dr. Jean Dupont',
+                    email: 'medecin@medical-xai.fr',
+                    role: 'medecin',
+                    is_active: true,
+                    last_login: '2024-01-15 09:15:00',
+                    analysis_count: 28,
+                    institution: 'Centre Hospitalier Régional'
+                },
+                {
+                    id: 3,
+                    full_name: 'Dr. Marie Curie',
+                    email: 'marie.curie@hopital.fr',
+                    role: 'medecin',
+                    is_active: true,
+                    last_login: '2024-01-14 16:45:00',
+                    analysis_count: 32,
+                    institution: 'Institut de Recherche'
+                },
+                {
+                    id: 4,
+                    full_name: 'Dr. Paul Martin',
+                    email: 'paul.martin@clinique.fr',
+                    role: 'medecin',
+                    is_active: false,
+                    last_login: '2024-01-10 11:20:00',
+                    analysis_count: 15,
+                    institution: 'Clinique Saint-Louis'
+                }
+            ];
+
+            const tableBody = document.getElementById('usersTableBody');
+            tableBody.innerHTML = '';
+
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>
+                        <strong>${user.full_name}</strong>
+                        <br>
+                        <small class="text-muted">${user.institution}</small>
+                    </td>
+                    <td>${user.email}</td>
+                    <td>
+                        <span class="user-role role-${user.role}">
+                            ${user.role === 'admin' ? 'Administrateur' :
+                              user.role === 'medecin' ? 'Médecin' : 'Technicien'}
+                        </span>
+                    </td>
+                    <td>
+                        <i class="fas fa-circle ${user.is_active ? 'status-active' : 'status-inactive'} me-1"></i>
+                        ${user.is_active ? 'Actif' : 'Inactif'}
+                    </td>
+                    <td>
+                        ${user.last_login ? new Date(user.last_login).toLocaleDateString('fr-FR') : 'Jamais'}
+                        <br>
+                        <small class="text-muted">${user.last_login ? new Date(user.last_login).toLocaleTimeString('fr-FR') : ''}</small>
+                    </td>
+                    <td>
+                        <span class="badge bg-primary">${user.analysis_count}</span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="editUser(${user.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-${user.is_active ? 'warning' : 'success'}"
+                                    onclick="toggleUserStatus(${user.id}, ${user.is_active})">
+                                <i class="fas fa-${user.is_active ? 'ban' : 'check'}"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="deleteUser(${user.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function initCharts() {
+            // Activity Chart
+            const activityCtx = document.getElementById('activityChart').getContext('2d');
+            new Chart(activityCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+                    datasets: [{
+                        label: 'Analyses',
+                        data: [12, 19, 15, 25, 22, 30, 28],
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Utilisateurs actifs',
+                        data: [5, 7, 6, 8, 7, 9, 8],
+                        borderColor: '#27ae60',
+                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Diagnosis Distribution Chart
+            const diagnosisCtx = document.getElementById('diagnosisChart').getContext('2d');
+            new Chart(diagnosisCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['MEL', 'BCC', 'SCC', 'AKIEC', 'VASC', 'DF', 'NV', 'BKL'],
+                    datasets: [{
+                        data: [15, 22, 18, 12, 8, 6, 25, 14],
+                        backgroundColor: [
+                            '#FF6B6B', '#4ECDC4', '#98D8C8', '#45B7D1',
+                            '#FFA07A', '#96CEB4', '#DDA0DD', '#FFEAA7'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+
+            // User Activity Chart
+            const userCtx = document.getElementById('userActivityChart').getContext('2d');
+            new Chart(userCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Dr. Admin', 'Dr. Dupont', 'Dr. Curie', 'Dr. Martin', 'Dr. Dubois'],
+                    datasets: [{
+                        label: 'Analyses',
+                        data: [45, 28, 32, 15, 22],
+                        backgroundColor: '#3498db'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initForms() {
+            // Add user form
+            document.getElementById('addUserForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Création...';
+                submitBtn.disabled = true;
+
+                try {
+                    // Simulate API call
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+
+                    showAlert('success', 'Utilisateur créé avec succès !');
+
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addUserModal'));
+                    modal.hide();
+
+                    // Reset form
+                    this.reset();
+
+                    // Reload users table
+                    loadUsersTable();
+
+                } catch (error) {
+                    showAlert('error', 'Erreur lors de la création');
+                } finally {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
+        }
+
+        function editUser(userId) {
+            // In a real application, this would load user data from API
+            const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+
+            // Load user data into form
+            const form = document.getElementById('editUserForm');
+            form.querySelector('#editUserId').value = userId;
+
+            // Show modal
+            modal.show();
+        }
+
+        function toggleUserStatus(userId, currentStatus) {
+            const newStatus = !currentStatus;
+            const action = newStatus ? 'activer' : 'désactiver';
+
+            if (confirm(`Êtes-vous sûr de vouloir ${action} cet utilisateur ?`)) {
+                // In a real application, this would make an API call
+                showAlert('success', `Utilisateur ${newStatus ? 'activé' : 'désactivé'} avec succès`);
+                loadUsersTable();
+            }
+        }
+
+        function deleteUser(userId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.')) {
+                // In a real application, this would make an API call
+                showAlert('success', 'Utilisateur supprimé avec succès');
+                loadUsersTable();
+            }
+        }
+
+        function refreshStats() {
+            showAlert('info', 'Statistiques actualisées');
+            // In a real application, this would reload data
+        }
+
+        function backupDatabase() {
+            showAlert('info', 'Sauvegarde en cours...');
+            // In a real application, this would trigger backup
+        }
+
+        function clearCache() {
+            if (confirm('Vider le cache système ?')) {
+                showAlert('success', 'Cache vidé avec succès');
+            }
+        }
+
+        function runMaintenance() {
+            showAlert('info', 'Maintenance système en cours...');
+            // In a real application, this would run maintenance tasks
+        }
+
+        function downloadLogs() {
+            showAlert('success', 'Téléchargement des logs...');
+            // In a real application, this would download log files
+        }
+
+        function showAlert(type, message) {
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-info';
+            const alert = document.createElement('div');
+            alert.className = `alert ${alertClass} alert-dismissible fade show`;
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            alert.style.position = 'fixed';
+            alert.style.top = '20px';
+            alert.style.right = '20px';
+            alert.style.zIndex = '9999';
+            alert.style.minWidth = '300px';
+
+            document.body.appendChild(alert);
+
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

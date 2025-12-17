@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XAI Medical Platform - Accueil</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-dark: #004d40;
+            --primary-light: #00796b;
+            --accent: #ff9800;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .hero-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            margin-top: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .case-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            border-left: 5px solid var(--primary-light);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .case-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+            border-left-color: var(--accent);
+        }
+
+        .case-badge {
+            font-size: 0.75rem;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .btn-xai {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-xai:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 77, 64, 0.3);
+        }
+
+        .nav-pills .nav-link.active {
+            background: var(--primary-dark) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <!-- En-tête -->
+        <div class="hero-section text-center">
+            <div class="mb-4">
+                <i class="fas fa-brain fa-4x text-primary mb-3"></i>
+                <h1 class="display-4 fw-bold text-dark mb-3">
+                    Plateforme XAI Médicale
+                </h1>
+                <p class="lead text-muted">
+                    Analyse avancée des lésions cutanées avec explications IA transparentes
+                </p>
+            </div>
+
+            <!-- Statistiques -->
+            <div class="row mb-5">
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon text-primary">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                        <h3 class="fw-bold">{{ total_cases }}</h3>
+                        <p class="text-muted mb-0">Cas analysés</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon text-success">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="fw-bold">95.2%</h3>
+                        <p class="text-muted mb-0">Précision</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon text-warning">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <h3 class="fw-bold">3</h3>
+                        <p class="text-muted mb-0">Méthodes XAI</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon text-info">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h3 class="fw-bold">⚡</h3>
+                        <p class="text-muted mb-0">Temps réel</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="mb-5">
+                <div class="nav nav-pills justify-content-center mb-4" id="pills-tab" role="tablist">
+                    <button class="nav-link active me-3" id="pills-all-tab" data-bs-toggle="pill" data-bs-target="#pills-all">
+                        <i class="fas fa-th-list me-2"></i>Tous les cas
+                    </button>
+                    <button class="nav-link me-3" id="pills-success-tab" data-bs-toggle="pill" data-bs-target="#pills-success">
+                        <i class="fas fa-check-circle me-2"></i>Classifications correctes
+                    </button>
+                    <button class="nav-link" id="pills-error-tab" data-bs-toggle="pill" data-bs-target="#pills-error">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Cas critiques
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bouton d'action principal -->
+            <div class="mb-5">
+                <a href="#cases-section" class="btn btn-xai btn-lg">
+                    <i class="fas fa-play-circle me-2"></i>Explorer les cas d'analyse
+                </a>
+            </div>
+        </div>
+
+        <!-- Section des cas -->
+        <div id="cases-section" class="mt-5">
+            <h2 class="text-white text-center mb-4">
+                <i class="fas fa-clipboard-list me-2"></i>Sélectionnez un cas pour l'analyse détaillée
+            </h2>
+
+            <div class="row">
+                {% for case in cases %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <a href="{{ url_for('dashboard', case_id=case) }}" class="text-decoration-none">
+                        <div class="case-card">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h5 class="fw-bold mb-1">
+                                        <i class="fas fa-file-medical-alt text-primary me-2"></i>
+                                        {{ case }}
+                                    </h5>
+                                    <small class="text-muted">ID: {{ case.split('_')[0]|upper }}</small>
+                                </div>
+                                <span class="case-badge bg-success text-white">
+                                    {% if 'success' in case %}
+                                    <i class="fas fa-check me-1"></i>Succès
+                                    {% else %}
+                                    <i class="fas fa-exchange-alt me-1"></i>Transition
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div class="mb-3">
+                                <small class="text-muted d-block mb-1">
+                                    <i class="fas fa-info-circle me-1"></i>Type:
+                                </small>
+                                <span class="fw-bold">{{ case.split('_')[0]|upper }}</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>Index: {{ case.split('_')[-1] }}
+                                </span>
+                                <span class="text-primary">
+                                    Voir l'analyse <i class="fas fa-arrow-right ms-1"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Pied de page -->
+        <div class="text-center text-white mt-5 pt-5">
+            <p class="mb-3">
+                <i class="fas fa-shield-alt me-2"></i>
+                Plateforme certifiée pour l'analyse médicale assistée par IA
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/api/health" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-heartbeat me-1"></i>Vérifier l'état
+                </a>
+                <a href="/api/cases" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-code me-1"></i>API
+                </a>
+                <button onclick="location.reload()" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-sync-alt me-1"></i>Actualiser
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Animation simple pour les cartes
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.case-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>

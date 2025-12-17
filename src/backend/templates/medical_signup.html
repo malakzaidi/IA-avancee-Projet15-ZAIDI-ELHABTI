@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - {{ app_name }}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #27ae60;
+            --light-bg: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .signup-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .signup-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .signup-body {
+            padding: 40px;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .step-indicator:before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #e9ecef;
+            z-index: 1;
+        }
+
+        .step {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            flex: 1;
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background: #e9ecef;
+            color: #6c757d;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+        }
+
+        .step.active .step-number {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .step.active .step-label {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        .form-control {
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .btn-medical {
+            background: var(--secondary-color);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-medical:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-medical-success {
+            background: var(--accent-color);
+        }
+
+        .btn-medical-success:hover {
+            background: #219653;
+        }
+
+        .alert {
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .password-strength {
+            height: 5px;
+            background: #e9ecef;
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .requirements {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 2px;
+        }
+
+        .requirement.met {
+            color: var(--accent-color);
+        }
+
+        @media (max-width: 768px) {
+            .signup-body {
+                padding: 20px;
+            }
+
+            .step-label {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="signup-container">
+            <!-- Header -->
+            <div class="signup-header">
+                <div class="d-flex align-items-center justify-content-center gap-3 mb-3">
+                    <i class="fas fa-stethoscope fa-2x"></i>
+                    <h1 class="h3 mb-0">{{ app_name }}</h1>
+                </div>
+                <p class="mb-0">Inscription professionnelle pour médecins</p>
+            </div>
+
+            <!-- Body -->
+            <div class="signup-body">
+                <!-- Step Indicator -->
+                <div class="step-indicator">
+                    <div class="step active" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Identité</div>
+                    </div>
+                    <div class="step" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Profession</div>
+                    </div>
+                    <div class="step" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Compte</div>
+                    </div>
+                </div>
+
+                <!-- Error/Success Alerts -->
+                <div id="errorAlert" class="alert alert-danger d-none" role="alert"></div>
+                <div id="successAlert" class="alert alert-success d-none" role="alert"></div>
+
+                <!-- Step 1: Personal Info -->
+                <div id="step1" class="form-section active">
+                    <h3 class="mb-4" style="color: var(--primary-color);">
+                        <i class="fas fa-user-md me-2"></i> Informations personnelles
+                    </h3>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="full_name" class="form-label">Nom complet *</label>
+                            <input type="text" class="form-control" id="full_name" name="full_name"
+                                   placeholder="Dr. Jean Dupont" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email professionnel *</label>
+                            <input type="email" class="form-control" id="email" name="email"
+                                   placeholder="votre.email@hopital.fr" required>
+                            <div class="form-text">Utilisez votre email professionnel</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">Téléphone</label>
+                            <div class="input-group">
+                                <span class="input-group-text">+33</span>
+                                <input type="tel" class="form-control" id="phone" name="phone"
+                                       placeholder="612345678">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-between">
+                        <div>
+                            <a href="{{ url_for('login') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Retour connexion
+                            </a>
+                        </div>
+                        <button type="button" class="btn btn-medical next-step" data-next="2">
+                            Suivant <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Professional Info -->
+                <div id="step2" class="form-section">
+                    <h3 class="mb-4" style="color: var(--primary-color);">
+                        <i class="fas fa-briefcase-medical me-2"></i> Informations professionnelles
+                    </h3>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="institution" class="form-label">Établissement *</label>
+                            <input type="text" class="form-control" id="institution" name="institution"
+                                   placeholder="Hôpital Universitaire" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="department" class="form-label">Service/Département *</label>
+                            <input type="text" class="form-control" id="department" name="department"
+                                   placeholder="Dermatologie" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="specialty" class="form-label">Spécialité *</label>
+                            <select class="form-select" id="specialty" name="specialty" required>
+                                <option value="">Sélectionnez...</option>
+                                <option value="Dermatologie" selected>Dermatologie</option>
+                                <option value="Médecine Générale">Médecine Générale</option>
+                                <option value="Oncologie">Oncologie</option>
+                                <option value="Chirurgie">Chirurgie</option>
+                                <option value="Autre">Autre</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="rpps" class="form-label">N° RPPS (optionnel)</label>
+                            <input type="text" class="form-control" id="rpps" name="rpps"
+                                   placeholder="12345678901">
+                            <div class="form-text">Identifiant professionnel de santé</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-secondary prev-step" data-prev="1">
+                            <i class="fas fa-arrow-left me-2"></i> Retour
+                        </button>
+                        <button type="button" class="btn btn-medical next-step" data-next="3">
+                            Suivant <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Account Creation -->
+                <div id="step3" class="form-section">
+                    <h3 class="mb-4" style="color: var(--primary-color);">
+                        <i class="fas fa-key me-2"></i> Création du compte
+                    </h3>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="password" class="form-label">Mot de passe *</label>
+                            <input type="password" class="form-control" id="password" name="password"
+                                   placeholder="••••••••" required>
+                            <div class="password-strength">
+                                <div class="strength-bar" id="strengthBar"></div>
+                            </div>
+                            <div class="requirements">
+                                <div class="requirement" id="reqLength">
+                                    <i class="fas fa-times text-danger"></i>
+                                    Au moins 8 caractères
+                                </div>
+                                <div class="requirement" id="reqUpper">
+                                    <i class="fas fa-times text-danger"></i>
+                                    Une majuscule
+                                </div>
+                                <div class="requirement" id="reqNumber">
+                                    <i class="fas fa-times text-danger"></i>
+                                    Un chiffre
+                                </div>
+                                <div class="requirement" id="reqSpecial">
+                                    <i class="fas fa-times text-danger"></i>
+                                    Un caractère spécial
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="confirm_password" class="form-label">Confirmer le mot de passe *</label>
+                            <input type="password" class="form-control" id="confirm_password"
+                                   placeholder="••••••••" required>
+                            <div id="passwordMatch" class="form-text"></div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    J'accepte les
+                                    <a href="#" class="text-decoration-none">conditions d'utilisation</a>
+                                    et la
+                                    <a href="#" class="text-decoration-none">politique de confidentialité</a>
+                                </label>
+                            </div>
+
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" id="newsletter">
+                                <label class="form-check-label" for="newsletter">
+                                    Je souhaite recevoir les actualités médicales et les mises à jour de la plateforme
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-secondary prev-step" data-prev="2">
+                            <i class="fas fa-arrow-left me-2"></i> Retour
+                        </button>
+                        <button type="submit" class="btn btn-medical btn-medical-success" id="submitBtn">
+                            <i class="fas fa-user-plus me-2"></i> Créer mon compte
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Login Link -->
+                <div class="mt-4 pt-3 border-top text-center">
+                    <p class="mb-0">
+                        Déjà un compte ?
+                        <a href="{{ url_for('login') }}" class="text-decoration-none fw-bold"
+                           style="color: var(--secondary-color);">
+                            Connectez-vous ici
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const steps = document.querySelectorAll('.step');
+            const formSections = document.querySelectorAll('.form-section');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirm_password');
+            const strengthBar = document.getElementById('strengthBar');
+            const requirements = document.querySelectorAll('.requirement');
+            const submitBtn = document.getElementById('submitBtn');
+            const errorAlert = document.getElementById('errorAlert');
+            const successAlert = document.getElementById('successAlert');
+
+            // Step navigation
+            document.querySelectorAll('.next-step').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const nextStep = this.dataset.next;
+                    goToStep(nextStep);
+                });
+            });
+
+            document.querySelectorAll('.prev-step').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const prevStep = this.dataset.prev;
+                    goToStep(prevStep);
+                });
+            });
+
+            function goToStep(stepNumber) {
+                // Hide all sections
+                formSections.forEach(section => {
+                    section.classList.remove('active');
+                });
+
+                // Show target section
+                document.getElementById(`step${stepNumber}`).classList.add('active');
+
+                // Update step indicator
+                steps.forEach(step => {
+                    const stepNum = step.dataset.step;
+                    step.classList.remove('active', 'completed');
+
+                    if (parseInt(stepNum) < parseInt(stepNumber)) {
+                        step.classList.add('completed');
+                    } else if (parseInt(stepNum) === parseInt(stepNumber)) {
+                        step.classList.add('active');
+                    }
+                });
+
+                // Scroll to top
+                window.scrollTo(0, 0);
+            }
+
+            // Password strength checker
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+
+                // Reset
+                strengthBar.style.width = '0%';
+                strengthBar.style.backgroundColor = '#e74c3c';
+
+                requirements.forEach(req => {
+                    const icon = req.querySelector('i');
+                    icon.className = 'fas fa-times text-danger';
+                    req.classList.remove('met');
+                });
+
+                if (password.length === 0) return;
+
+                let strength = 0;
+
+                // Check length
+                if (password.length >= 8) {
+                    strength += 25;
+                    requirements[0].classList.add('met');
+                    requirements[0].querySelector('i').className = 'fas fa-check text-success';
+                }
+
+                // Check uppercase
+                if (/[A-Z]/.test(password)) {
+                    strength += 25;
+                    requirements[1].classList.add('met');
+                    requirements[1].querySelector('i').className = 'fas fa-check text-success';
+                }
+
+                // Check numbers
+                if (/[0-9]/.test(password)) {
+                    strength += 25;
+                    requirements[2].classList.add('met');
+                    requirements[2].querySelector('i').className = 'fas fa-check text-success';
+                }
+
+                // Check special chars
+                if (/[^A-Za-z0-9]/.test(password)) {
+                    strength += 25;
+                    requirements[3].classList.add('met');
+                    requirements[3].querySelector('i').className = 'fas fa-check text-success';
+                }
+
+                // Update strength bar
+                strengthBar.style.width = `${strength}%`;
+
+                if (strength <= 25) {
+                    strengthBar.style.backgroundColor = '#e74c3c'; // Red
+                } else if (strength <= 50) {
+                    strengthBar.style.backgroundColor = '#f39c12'; // Orange
+                } else if (strength <= 75) {
+                    strengthBar.style.backgroundColor = '#f1c40f'; // Yellow
+                } else {
+                    strengthBar.style.backgroundColor = '#27ae60'; // Green
+                }
+
+                checkPasswordMatch();
+            });
+
+            // Password match checker
+            confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+
+            function checkPasswordMatch() {
+                const matchDiv = document.getElementById('passwordMatch');
+                const password = passwordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+
+                if (confirmPassword.length === 0) {
+                    matchDiv.textContent = '';
+                    matchDiv.style.color = '';
+                    return;
+                }
+
+                if (password === confirmPassword) {
+                    matchDiv.innerHTML = '<i class="fas fa-check text-success me-1"></i> Les mots de passe correspondent';
+                    matchDiv.style.color = '#27ae60';
+                } else {
+                    matchDiv.innerHTML = '<i class="fas fa-times text-danger me-1"></i> Les mots de passe ne correspondent pas';
+                    matchDiv.style.color = '#e74c3c';
+                }
+            }
+
+            // Form submission
+            submitBtn.addEventListener('click', async function() {
+                // Validate form
+                const email = document.getElementById('email').value;
+                const fullName = document.getElementById('full_name').value;
+                const institution = document.getElementById('institution').value;
+                const department = document.getElementById('department').value;
+                const specialty = document.getElementById('specialty').value;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirm_password').value;
+                const terms = document.getElementById('terms').checked;
+
+                // Clear alerts
+                errorAlert.classList.add('d-none');
+                successAlert.classList.add('d-none');
+
+                // Validation
+                if (!email || !fullName || !institution || !department || !specialty || !password || !confirmPassword) {
+                    errorAlert.textContent = 'Veuillez remplir tous les champs obligatoires';
+                    errorAlert.classList.remove('d-none');
+                    return;
+                }
+
+                if (!terms) {
+                    errorAlert.textContent = 'Veuillez accepter les conditions d\'utilisation';
+                    errorAlert.classList.remove('d-none');
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    errorAlert.textContent = 'Les mots de passe ne correspondent pas';
+                    errorAlert.classList.remove('d-none');
+                    return;
+                }
+
+                if (password.length < 8) {
+                    errorAlert.textContent = 'Le mot de passe doit contenir au moins 8 caractères';
+                    errorAlert.classList.remove('d-none');
+                    return;
+                }
+
+                // Show loading
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Création du compte...';
+                this.disabled = true;
+
+                try {
+                    // Prepare form data
+                    const formData = new FormData();
+                    formData.append('email', email);
+                    formData.append('full_name', fullName);
+                    formData.append('institution', institution);
+                    formData.append('department', department);
+                    formData.append('specialty', specialty);
+                    formData.append('password', password);
+                    formData.append('confirm_password', confirmPassword);
+
+                    if (document.getElementById('phone').value) {
+                        formData.append('phone', document.getElementById('phone').value);
+                    }
+
+                    if (document.getElementById('rpps').value) {
+                        formData.append('rpps', document.getElementById('rpps').value);
+                    }
+
+                    // Submit
+                    const response = await fetch('/signup', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        successAlert.textContent = data.message || 'Compte créé avec succès !';
+                        successAlert.classList.remove('d-none');
+
+                        // Redirect to login after delay
+                        setTimeout(() => {
+                            window.location.href = data.redirect || '/login';
+                        }, 2000);
+                    } else {
+                        errorAlert.textContent = data.error || 'Erreur lors de la création du compte';
+                        errorAlert.classList.remove('d-none');
+                        this.innerHTML = originalText;
+                        this.disabled = false;
+                    }
+
+                } catch (error) {
+                    errorAlert.textContent = 'Erreur réseau. Veuillez réessayer.';
+                    errorAlert.classList.remove('d-none');
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                }
+            });
+
+            // Auto-fill for testing
+            document.getElementById('email').value = 'test@medical-xai.fr';
+            document.getElementById('full_name').value = 'Dr. Test Médecin';
+            document.getElementById('institution').value = 'Hôpital Test';
+            document.getElementById('department').value = 'Dermatologie';
+            document.getElementById('password').value = 'Password123!';
+            document.getElementById('confirm_password').value = 'Password123!';
+            document.getElementById('terms').checked = true;
+
+            // Trigger password strength check
+            passwordInput.dispatchEvent(new Event('input'));
+        });
+    </script>
+</body>
+</html>

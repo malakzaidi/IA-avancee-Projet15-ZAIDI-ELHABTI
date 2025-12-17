@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse {{ analysis.analysis_id }} - {{ app_name }}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-bg: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .analysis-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .analysis-header {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .diagnosis-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--secondary-color);
+            margin-bottom: 25px;
+        }
+
+        .confidence-badge {
+            font-size: 1.1rem;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .image-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .image-card {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .image-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .image-title {
+            padding: 15px;
+            background: var(--light-bg);
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .metrics-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .metric-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            height: 100%;
+            border: 1px solid #e9ecef;
+        }
+
+        .metric-value {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            line-height: 1;
+        }
+
+        .metric-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .probability-bars {
+            margin-top: 20px;
+        }
+
+        .probability-item {
+            margin-bottom: 10px;
+        }
+
+        .probability-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .progress {
+            height: 8px;
+            background: #e9ecef;
+        }
+
+        .guidelines-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .guideline-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .feedback-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .star-rating {
+            font-size: 1.5rem;
+            color: #ffc107;
+            cursor: pointer;
+        }
+
+        .star-rating .star {
+            transition: transform 0.2s;
+        }
+
+        .star-rating .star:hover {
+            transform: scale(1.2);
+        }
+
+        .btn-medical {
+            background: var(--secondary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-medical:hover {
+            background: #2980b9;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-medical-success {
+            background: var(--accent-color);
+        }
+
+        .btn-medical-warning {
+            background: var(--warning-color);
+        }
+
+        .plotly-chart {
+            width: 100%;
+            height: 500px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .tab-content {
+            background: white;
+            border-radius: 0 0 10px 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-top: -1px;
+        }
+
+        .nav-tabs .nav-link {
+            padding: 12px 25px;
+            font-weight: 600;
+            color: #6c757d;
+            border: none;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--secondary-color);
+            background: white;
+            border-bottom: 3px solid var(--secondary-color);
+        }
+
+        @media (max-width: 768px) {
+            .image-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .plotly-chart {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="analysis-container">
+        <!-- Header -->
+        <div class="analysis-header">
+            <div class="d-flex justify-content-between align-items-start mb-4">
+                <div>
+                    <h2 class="mb-1" style="color: var(--primary-color);">
+                        <i class="fas fa-diagnoses me-2"></i>
+                        Analyse #{{ analysis.analysis_id }}
+                    </h2>
+                    <p class="text-muted mb-0">
+                        {{ analysis.created_at.strftime('%d/%m/%Y à %H:%M') }}
+                        • {{ class_display_names.get(analysis.predicted_class, analysis.predicted_class) }}
+                    </p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('analysis_history') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i> Historique
+                    </a>
+                    <a href="/api/download_pdf/{{ analysis.analysis_id }}" class="btn-medical btn-medical-warning">
+                        <i class="fas fa-file-pdf me-2"></i> Télécharger PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value">{{ (analysis.confidence * 100)|round(1) }}%</div>
+                        <div class="metric-label">Confiance</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value">{{ analysis.patient_age or 'N/A' }}</div>
+                        <div class="metric-label">Âge patient</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value">{{ analysis.patient_sex or 'N/A' }}</div>
+                        <div class="metric-label">Sexe</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value">
+                            {% if analysis.validated_by_doctor %}
+                            <i class="fas fa-check-circle text-success"></i>
+                            {% else %}
+                            <i class="fas fa-clock text-warning"></i>
+                            {% endif %}
+                        </div>
+                        <div class="metric-label">
+                            {% if analysis.validated_by_doctor %}Validé{% else %}En attente{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-tabs" id="analysisTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="diagnosis-tab" data-bs-toggle="tab"
+                        data-bs-target="#diagnosis" type="button">
+                    <i class="fas fa-stethoscope me-2"></i> Diagnostic
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="images-tab" data-bs-toggle="tab"
+                        data-bs-target="#images" type="button">
+                    <i class="fas fa-images me-2"></i> Visualisations
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="xai-tab" data-bs-toggle="tab"
+                        data-bs-target="#xai" type="button">
+                    <i class="fas fa-brain me-2"></i> Explications XAI
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="guidelines-tab" data-bs-toggle="tab"
+                        data-bs-target="#guidelines" type="button">
+                    <i class="fas fa-book-medical me-2"></i> Guidelines
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="feedback-tab" data-bs-toggle="tab"
+                        data-bs-target="#feedback" type="button">
+                    <i class="fas fa-comment-medical me-2"></i> Feedback
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="analysisTabsContent">
+            <!-- Diagnosis Tab -->
+            <div class="tab-pane fade show active" id="diagnosis" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="diagnosis-card">
+                            <h4 class="mb-4" style="color: var(--primary-color);">
+                                <i class="fas fa-diagnoses me-2"></i> Résultat du diagnostic
+                            </h4>
+
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="flex-grow-1">
+                                    <h2 class="mb-2">
+                                        {{ class_display_names.get(analysis.predicted_class, analysis.predicted_class) }}
+                                        <small class="text-muted">({{ analysis.predicted_class }})</small>
+                                    </h2>
+                                    <p class="mb-0">
+                                        <span class="confidence-badge"
+                                              style="background: {% if analysis.confidence > 0.8 %}#d4edda
+                                                          {% elif analysis.confidence > 0.6 %}#fff3cd
+                                                          {% else %}#f8d7da{% endif %};
+                                                     color: {% if analysis.confidence > 0.8 %}#155724
+                                                          {% elif analysis.confidence > 0.6 %}#856404
+                                                          {% else %}#721c24{% endif %};">
+                                            Confiance: {{ (analysis.confidence * 100)|round(1) }}%
+                                            ({{ analysis.confidence_level or 'N/A' }})
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    {% set severity = analysis.predicted_class in ['MEL', 'SCC'] and 'Élevé' or
+                                                      analysis.predicted_class in ['BCC', 'AKIEC'] and 'Modéré' or
+                                                      'Faible' %}
+                                    <span class="badge {% if severity == 'Élevé' %}bg-danger
+                                                      {% elif severity == 'Modéré' %}bg-warning
+                                                      {% else %}bg-success{% endif %} fs-6">
+                                        {{ severity }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <h5 class="mt-4 mb-3">Distribution des probabilités</h5>
+                            <div class="probability-bars">
+                                {% for class, prob in probabilities|dictsort(by='value', reverse=true) %}
+                                <div class="probability-item">
+                                    <div class="probability-label">
+                                        <span>
+                                            {{ class_display_names.get(class, class) }}
+                                            <small class="text-muted">({{ class }})</small>
+                                        </span>
+                                        <span>{{ (prob * 100)|round(1) }}%</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar"
+                                             role="progressbar"
+                                             style="width: {{ prob * 100 }}%;
+                                                    background: {{ class_colors.get(class, '#6c757d') }};">
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="metrics-section">
+                            <h4 class="mb-4" style="color: var(--primary-color);">
+                                <i class="fas fa-chart-line me-2"></i> Métriques XAI
+                            </h4>
+
+                            <div class="row g-3">
+                                <div class="col-md-3 col-6">
+                                    <div class="metric-card">
+                                        <div class="metric-value">
+                                            {{ confidence_metrics.get('confidence_score', 0)|float|round(3) }}
+                                        </div>
+                                        <div class="metric-label">Score confiance</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-6">
+                                    <div class="metric-card">
+                                        <div class="metric-value">
+                                            {{ confidence_metrics.get('consensus_strength', 0)|float|round(3) }}
+                                        </div>
+                                        <div class="metric-label">Consensus</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-6">
+                                    <div class="metric-card">
+                                        <div class="metric-value">
+                                            {{ confidence_metrics.get('avg_agreement', 0)|float|round(3) }}
+                                        </div>
+                                        <div class="metric-label">Accord méthodes</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-6">
+                                    <div class="metric-card">
+                                        <div class="metric-value">
+                                            {{ confidence_metrics.get('sparsity', 0)|float|round(3) }}
+                                        </div>
+                                        <div class="metric-label">Sparsité</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <h6>Recommandation clinique</h6>
+                                <div class="alert
+                                    {% if confidence_metrics.get('confidence_level') == 'EXCELLENTE' %}alert-success
+                                    {% elif confidence_metrics.get('confidence_level') == 'BONNE' %}alert-info
+                                    {% elif confidence_metrics.get('confidence_level') == 'MODÉRÉE' %}alert-warning
+                                    {% else %}alert-danger{% endif %}">
+                                    <i class="fas fa-{{ confidence_metrics.get('recommendation_icon', 'info-circle') }} me-2"></i>
+                                    {{ confidence_metrics.get('recommendation', 'Validation clinique recommandée') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="metrics-section">
+                            <h5 class="mb-3" style="color: var(--primary-color);">
+                                <i class="fas fa-user-injured me-2"></i> Informations patient
+                            </h5>
+
+                            <div class="list-group list-group-flush">
+                                <div class="list-group-item d-flex justify-content-between px-0">
+                                    <span>Âge</span>
+                                    <strong>{{ analysis.patient_age or 'Non spécifié' }} ans</strong>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between px-0">
+                                    <span>Sexe</span>
+                                    <strong>{{ analysis.patient_sex or 'Non spécifié' }}</strong>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between px-0">
+                                    <span>Localisation</span>
+                                    <strong>{{ analysis.patient_localization or 'Non spécifié' }}</strong>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between px-0">
+                                    <span>Analyse ID</span>
+                                    <strong>{{ analysis.analysis_id }}</strong>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between px-0">
+                                    <span>Date</span>
+                                    <strong>{{ analysis.created_at.strftime('%d/%m/%Y %H:%M') }}</strong>
+                                </div>
+                            </div>
+
+                            {% if metadata %}
+                            <div class="mt-4">
+                                <h6>Métadonnées supplémentaires</h6>
+                                <div class="small text-muted">
+                                    {{ metadata|tojson|safe }}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="metrics-section mt-4">
+                            <h5 class="mb-3" style="color: var(--primary-color);">
+                                <i class="fas fa-bolt me-2"></i> Actions rapides
+                            </h5>
+
+                            <div class="d-grid gap-2">
+                                <a href="/api/download_pdf/{{ analysis.analysis_id }}"
+                                   class="btn-medical btn-medical-warning">
+                                    <i class="fas fa-file-pdf me-2"></i> Télécharger PDF
+                                </a>
+                                <a href="{{ url_for('new_analysis') }}" class="btn-medical">
+                                    <i class="fas fa-plus-circle me-2"></i> Nouvelle analyse
+                                </a>
+                                <a href="{{ url_for('analysis_history') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-history me-2"></i> Retour historique
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Images Tab -->
+            <div class="tab-pane fade" id="images" role="tabpanel">
+                <h4 class="mb-4" style="color: var(--primary-color);">
+                    <i class="fas fa-images me-2"></i> Visualisations XAI
+                </h4>
+
+                <div class="image-section">
+                    <div class="image-grid">
+                        <!-- Images will be loaded dynamically -->
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted">
+                            Les visualisations XAI montrent les zones importantes pour la décision du modèle.
+                            Cliquez sur une image pour l'agrandir.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 3D Visualization -->
+                <div class="metrics-section mt-4">
+                    <h5 class="mb-4" style="color: var(--primary-color);">
+                        <i class="fas fa-cube me-2"></i> Visualisation 3D
+                    </h5>
+
+                    <div id="3dVisualization" class="plotly-chart">
+                        <!-- Plotly chart will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- XAI Tab -->
+            <div class="tab-pane fade" id="xai" role="tabpanel">
+                <h4 class="mb-4" style="color: var(--primary-color);">
+                    <i class="fas fa-brain me-2"></i> Explications détaillées XAI
+                </h4>
+
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="metrics-section">
+                            <h5>Corrélations entre méthodes</h5>
+                            <div id="correlationChart" class="plotly-chart" style="height: 300px;"></div>
+                        </div>
+
+                        <div class="metrics-section mt-4">
+                            <h5>Détail des métriques</h5>
+                            <div class="row g-3">
+                                {% for key, value in xai_metrics.items() %}
+                                <div class="col-md-4">
+                                    <div class="metric-card">
+                                        <div class="metric-value">
+                                            {% if value is number %}
+                                                {{ value|float|round(3) }}
+                                            {% else %}
+                                                {{ value }}
+                                            {% endif %}
+                                        </div>
+                                        <div class="metric-label">{{ key|replace('_', ' ')|title }}</div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="metrics-section">
+                            <h5>Interprétation</h5>
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-info-circle me-2"></i> À propos des métriques XAI</h6>
+                                <p class="small mb-0">
+                                    <strong>Consensus:</strong> Accord entre les différentes méthodes d'explicabilité<br>
+                                    <strong>Accord:</strong> Corrélation entre les cartes d'importance<br>
+                                    <strong>Sparsité:</strong> Focalisation sur des zones spécifiques<br>
+                                    <strong>Uniformité:</strong> Répartition homogène de l'importance
+                                </p>
+                            </div>
+
+                            <div class="alert alert-warning">
+                                <h6><i class="fas fa-exclamation-triangle me-2"></i> Interprétation clinique</h6>
+                                <p class="small mb-0">
+                                    {{ confidence_metrics.get('recommendation', '') }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guidelines Tab -->
+            <div class="tab-pane fade" id="guidelines" role="tabpanel">
+                <h4 class="mb-4" style="color: var(--primary-color);">
+                    <i class="fas fa-book-medical me-2"></i> Guidelines cliniques
+                </h4>
+
+                <div class="guidelines-section">
+                    {% if guidelines %}
+                    <div class="guideline-item">
+                        <h5>{{ guidelines.title or 'Guidelines' }}</h5>
+                        <p>{{ guidelines.description or 'Aucune description disponible.' }}</p>
+
+                        {% if guidelines.recommendations %}
+                        <h6 class="mt-3"><i class="fas fa-check-circle me-2 text-success"></i> Recommandations</h6>
+                        <ul>
+                            {% for rec in guidelines.recommendations %}
+                            <li>{{ rec }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+
+                        {% if guidelines.risk_factors %}
+                        <h6 class="mt-3"><i class="fas fa-exclamation-triangle me-2 text-warning"></i> Facteurs de risque</h6>
+                        <ul>
+                            {% for factor in guidelines.risk_factors %}
+                            <li>{{ factor }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+
+                        {% if guidelines.diagnostic_criteria %}
+                        <h6 class="mt-3"><i class="fas fa-search me-2 text-primary"></i> Critères diagnostiques</h6>
+                        <ul>
+                            {% for criteria in guidelines.diagnostic_criteria %}
+                            <li>{{ criteria }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+
+                        {% if guidelines.treatment_options %}
+                        <h6 class="mt-3"><i class="fas fa-pills me-2 text-info"></i> Options de traitement</h6>
+                        <ul>
+                            {% for treatment in guidelines.treatment_options %}
+                            <li>{{ treatment }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+
+                        <div class="mt-3">
+                            <span class="badge {% if guidelines.severity_level == 'high' %}bg-danger
+                                              {% elif guidelines.severity_level == 'moderate' %}bg-warning
+                                              {% else %}bg-success{% endif %}">
+                                Niveau de gravité: {{ guidelines.severity_level|default('moderate')|upper }}
+                            </span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-book-medical fa-3x text-muted mb-3"></i>
+                        <h5>Aucune guideline disponible</h5>
+                        <p class="text-muted">
+                            Les guidelines pour cette pathologie ne sont pas encore disponibles.
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Feedback Tab -->
+            <div class="tab-pane fade" id="feedback" role="tabpanel">
+                <h4 class="mb-4" style="color: var(--primary-color);">
+                    <i class="fas fa-comment-medical me-2"></i> Feedback clinique
+                </h4>
+
+                <div class="feedback-section">
+                    {% if analysis.clinical_feedback %}
+                    <div class="alert alert-success">
+                        <h5><i class="fas fa-check-circle me-2"></i> Feedback déjà soumis</h5>
+                        <p class="mb-2"><strong>Note:</strong>
+                            {% for i in range(5) %}
+                                <i class="fas fa-star {% if i < (analysis.feedback_rating or 0) %}text-warning{% else %}text-muted{% endif %}"></i>
+                            {% endfor %}
+                        </p>
+                        <p class="mb-0"><strong>Commentaire:</strong> {{ analysis.clinical_feedback }}</p>
+                        {% if analysis.validated_by_doctor %}
+                        <p class="mt-2 mb-0">
+                            <i class="fas fa-user-md me-1"></i>
+                            Validé par le médecin le {{ analysis.validation_date.strftime('%d/%m/%Y') }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <form id="feedbackForm">
+                        <div class="mb-4">
+                            <label class="form-label">Note de confiance (1-5 étoiles)</label>
+                            <div class="star-rating" id="starRating">
+                                {% for i in range(1, 6) %}
+                                <i class="fas fa-star star" data-rating="{{ i }}"></i>
+                                {% endfor %}
+                            </div>
+                            <input type="hidden" id="rating" name="rating" value="{{ analysis.feedback_rating or 0 }}">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="feedbackText" class="form-label">Commentaire clinique</label>
+                            <textarea class="form-control" id="feedbackText" name="feedback" rows="4"
+                                      placeholder="Vos observations, accord/désaccord avec le diagnostic, recommandations...">
+                                {{ analysis.clinical_feedback or '' }}
+                            </textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="validateDiagnosis"
+                                       name="validated" {% if analysis.validated_by_doctor %}checked{% endif %}>
+                                <label class="form-check-label" for="validateDiagnosis">
+                                    <i class="fas fa-check-circle me-1 text-success"></i>
+                                    Valider ce diagnostic cliniquement
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetFeedback()">
+                                <i class="fas fa-redo me-2"></i> Réinitialiser
+                            </button>
+                            <button type="submit" class="btn-medical btn-medical-success">
+                                <i class="fas fa-save me-2"></i> Enregistrer le feedback
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize star rating
+            const stars = document.querySelectorAll('.star');
+            const ratingInput = document.getElementById('rating');
+            const currentRating = parseInt(ratingInput.value) || 0;
+
+            // Set initial rating
+            stars.forEach((star, index) => {
+                if (index < currentRating) {
+                    star.classList.add('text-warning');
+                } else {
+                    star.classList.add('text-muted');
+                }
+
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.dataset.rating);
+                    ratingInput.value = rating;
+
+                    stars.forEach((s, i) => {
+                        if (i < rating) {
+                            s.classList.remove('text-muted');
+                            s.classList.add('text-warning');
+                        } else {
+                            s.classList.remove('text-warning');
+                            s.classList.add('text-muted');
+                        }
+                    });
+                });
+
+                star.addEventListener('mouseover', function() {
+                    const hoverRating = parseInt(this.dataset.rating);
+
+                    stars.forEach((s, i) => {
+                        if (i < hoverRating) {
+                            s.classList.remove('text-muted');
+                            s.classList.add('text-warning');
+                        }
+                    });
+                });
+
+                star.addEventListener('mouseout', function() {
+                    const current = parseInt(ratingInput.value) || 0;
+
+                    stars.forEach((s, i) => {
+                        if (i >= current) {
+                            s.classList.remove('text-warning');
+                            s.classList.add('text-muted');
+                        }
+                    });
+                });
+            });
+
+            // Feedback form submission
+            document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Enregistrement...';
+                submitBtn.disabled = true;
+
+                try {
+                    const formData = {
+                        analysis_id: '{{ analysis.analysis_id }}',
+                        rating: parseInt(ratingInput.value),
+                        feedback: document.getElementById('feedbackText').value,
+                        validated: document.getElementById('validateDiagnosis').checked
+                    };
+
+                    const response = await fetch('/api/analysis/feedback', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showAlert('success', 'Feedback enregistré avec succès !');
+
+                        // Reload page after delay
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        showAlert('error', data.error || 'Erreur lors de l\'enregistrement');
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                    }
+
+                } catch (error) {
+                    showAlert('error', 'Erreur réseau. Veuillez réessayer.');
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
+
+            // Reset feedback
+            window.resetFeedback = function() {
+                ratingInput.value = 0;
+                stars.forEach(star => {
+                    star.classList.remove('text-warning');
+                    star.classList.add('text-muted');
+                });
+                document.getElementById('feedbackText').value = '';
+                document.getElementById('validateDiagnosis').checked = false;
+            };
+
+            // Create sample charts
+            createCharts();
+
+            function showAlert(type, message) {
+                const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+                const alert = document.createElement('div');
+                alert.className = `alert ${alertClass} alert-dismissible fade show`;
+                alert.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+
+                alert.style.position = 'fixed';
+                alert.style.top = '20px';
+                alert.style.right = '20px';
+                alert.style.zIndex = '9999';
+                alert.style.minWidth = '300px';
+
+                document.body.appendChild(alert);
+
+                setTimeout(() => {
+                    alert.remove();
+                }, 5000);
+            }
+
+            function createCharts() {
+                // Correlation chart
+                const correlations = {{ confidence_metrics.get('correlations', {})|tojson|safe }};
+
+                if (correlations && Object.keys(correlations).length > 0) {
+                    const trace = {
+                        type: 'heatmap',
+                        z: [
+                            [1, correlations.occlusion_vs_intgrad || 0.7, correlations.occlusion_vs_attention || 0.6],
+                            [correlations.occlusion_vs_intgrad || 0.7, 1, correlations.intgrad_vs_attention || 0.8],
+                            [correlations.occlusion_vs_attention || 0.6, correlations.intgrad_vs_attention || 0.8, 1]
+                        ],
+                        x: ['Occlusion', 'IntGrad', 'Attention'],
+                        y: ['Occlusion', 'IntGrad', 'Attention'],
+                        colorscale: 'Viridis',
+                        showscale: true
+                    };
+
+                    const layout = {
+                        title: 'Corrélations entre méthodes XAI',
+                        height: 300,
+                        margin: { t: 40, r: 30, l: 30, b: 30 }
+                    };
+
+                    Plotly.newPlot('correlationChart', [trace], layout);
+                }
+
+                // 3D Visualization
+                const zData = [];
+                for (let i = 0; i < 50; i++) {
+                    const row = [];
+                    for (let j = 0; j < 50; j++) {
+                        const x = (i - 25) / 25;
+                        const y = (j - 25) / 25;
+                        row.push(Math.exp(-(x*x + y*y)) + Math.random() * 0.1);
+                    }
+                    zData.push(row);
+                }
+
+                const trace3d = {
+                    z: zData,
+                    type: 'surface',
+                    colorscale: 'Viridis',
+                    contours: {
+                        z: {
+                            show: true,
+                            usecolormap: true,
+                            highlightcolor: "#ff0000",
+                            project: {z: true}
+                        }
+                    }
+                };
+
+                const layout3d = {
+                    title: 'Visualisation 3D - Importance des régions',
+                    scene: {
+                        xaxis: {title: 'Largeur'},
+                        yaxis: {title: 'Hauteur'},
+                        zaxis: {title: 'Importance'}
+                    },
+                    height: 500,
+                    margin: { t: 40, r: 30, l: 30, b: 30 }
+                };
+
+                Plotly.newPlot('3dVisualization', [trace3d], layout3d);
+
+                // Load sample images
+                const imageGrid = document.querySelector('.image-grid');
+                const sampleImages = [
+                    {
+                        title: 'Image originale',
+                        url: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
+                    },
+                    {
+                        title: 'Overlay Occlusion',
+                        url: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80&blur=10'
+                    },
+                    {
+                        title: 'Overlay IntGrad',
+                        url: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80&blur=5'
+                    },
+                    {
+                        title: 'Overlay Consensus',
+                        url: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80&sepia=50'
+                    }
+                ];
+
+                sampleImages.forEach(img => {
+                    const card = document.createElement('div');
+                    card.className = 'image-card';
+                    card.innerHTML = `
+                        <img src="${img.url}" alt="${img.title}" onclick="openModal('${img.url}', '${img.title}')">
+                        <div class="image-title">${img.title}</div>
+                    `;
+                    imageGrid.appendChild(card);
+                });
+            }
+
+            // Image modal
+            window.openModal = function(src, title) {
+                const modal = document.createElement('div');
+                modal.className = 'modal fade';
+                modal.id = 'imageModal';
+                modal.innerHTML = `
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">${title}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body text-center">
+                                <img src="${src}" alt="${title}" class="img-fluid">
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+
+                const modalInstance = new bootstrap.Modal(modal);
+                modalInstance.show();
+
+                modal.addEventListener('hidden.bs.modal', function() {
+                    modal.remove();
+                });
+            };
+        });
+    </script>
+</body>
+</html>

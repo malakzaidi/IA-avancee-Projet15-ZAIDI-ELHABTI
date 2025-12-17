@@ -1,0 +1,11 @@
+# Fichier: params.yaml
+xai_params:
+  cases:
+    - idx: 0
+      type: nv_success
+    - idx: 2532
+      type: vasc_success
+    - idx: 387
+      type: nv_to_vasc
+    - idx: 2540
+      type: vasc_to_nv

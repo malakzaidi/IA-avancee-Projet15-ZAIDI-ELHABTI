@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}🏥 Plateforme Médicale XAI - Accueil{% endblock %}
+
+{% block content %}
+<div class="text-center py-5 mb-4">
+    <h1 class="display-4 fw-bold text-primary mb-3">
+        <i class="fas fa-brain me-3"></i>
+        Plateforme Médicale ULTIME
+    </h1>
+    <p class="lead fs-4 mb-4">
+        Diagnostic dermatologique assisté par IA avec <span class="fw-bold">explicabilité multi-techniques (XAI)</span>
+    </p>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Projet démonstration</strong> - Outil pédagogique pour la validation clinique des systèmes d'IA
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-crosshairs me-2"></i> Précision Diagnostique</h5>
+            </div>
+            <div class="card-body">
+                <p>Modèle IA spécialisé dans 8 classes de lésions cutanées avec validation clinique.</p>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success me-2"></i> Sensibilité > 90%</li>
+                    <li><i class="fas fa-check text-success me-2"></i> Spécificité > 85%</li>
+                    <li><i class="fas fa-check text-success me-2"></i> Validation multicentrique</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-eye me-2"></i> Explicabilité Complète</h5>
+            </div>
+            <div class="card-body">
+                <p>4 techniques XAI pour comprendre chaque décision :</p>
+                <div class="row">
+                    <div class="col-6 mb-2">
+                        <div class="method-card method-occlusion">
+                            <i class="fas fa-eye-slash text-danger"></i>
+                            <small>Occlusion</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <div class="method-card method-ig">
+                            <i class="fas fa-chart-line text-primary"></i>
+                            <small>Gradients Intégrés</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <div class="method-card method-attention">
+                            <i class="fas fa-bullseye text-success"></i>
+                            <small>Attention</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <div class="method-card method-lime">
+                            <i class="fas fa-chart-pie text-purple"></i>
+                            <small>LIME</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i> Confiance Clinique</h5>
+            </div>
+            <div class="card-body">
+                <p>Système de validation multi-critères :</p>
+                <ul>
+                    <li><strong>Score de consensus</strong> entre méthodes</li>
+                    <li><strong>Métriques de fiabilité</strong> XAI</li>
+                    <li><strong>Recommandations</strong> adaptées au niveau de confiance</li>
+                    <li><strong>Journalisation</strong> complète des analyses</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-users me-2"></i> Pour les Professionnels</h5>
+            </div>
+            <div class="card-body">
+                <p>Cette plateforme est conçue pour :</p>
+                <ul>
+                    <li><strong>Dermatologues</strong> : Aide au diagnostic et seconde opinion</li>
+                    <li><strong>Enseignants</strong> : Outil pédagogique pour l'IA médicale</li>
+                    <li><strong>Chercheurs</strong> : Validation des systèmes d'IA explicables</li>
+                    <li><strong>Étudiants en médecine</strong> : Apprentissage des lésions cutanées</li>
+                </ul>
+                <div class="alert alert-warning mt-3">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Important</strong> : Cet outil ne remplace pas l'expertise clinique.
+                    Toujours valider les résultats avec un professionnel qualifié.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-play-circle me-2"></i> Commencer</h5>
+            </div>
+            <div class="card-body text-center">
+                <h4 class="mb-4">Prêt à explorer la puissance du XAI médical ?</h4>
+                <p class="text-muted mb-4">
+                    Créez un compte pour accéder à la plateforme complète avec toutes les fonctionnalités.
+                </p>
+                <div class="d-grid gap-2 col-md-8 mx-auto">
+                    {% if current_user.is_authenticated %}
+                        <a href="/dashboard" class="btn btn-success btn-lg">
+                            <i class="fas fa-tachometer-alt me-2"></i>
+                            Accéder au Dashboard
+                        </a>
+                    {% else %}
+                        <a href="/signup" class="btn btn-primary btn-lg mb-2">
+                            <i class="fas fa-user-plus me-2"></i>
+                            Créer un compte gratuit
+                        </a>
+                        <a href="/login" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            Connexion
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="mt-4 text-muted small">
+                    <i class="fas fa-lock me-1"></i>
+                    Données sécurisées et conformes RGPD
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center mt-5 pt-4 border-top">
+    <h5 class="mb-3">Classes de lésions supportées</h5>
+    <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+        {% for class_name, color in {
+            'AKIEC': '#FF6B6B', 'BCC': '#4ECDC4', 'BKL': '#45B7D1', 'DF': '#96CEB4',
+            'MEL': '#FFEAA7', 'NV': '#DDA0DD', 'VASC': '#FFA07A', 'SCC': '#98D8C8'
+        }.items() %}
+            <span class="badge px-3 py-2" style="background-color: {{ color }}20; color: {{ color }}; border: 1px solid {{ color }};">
+                {{ class_name }}
+            </span>
+        {% endfor %}
+    </div>
+    <p class="text-muted">
+        © {{ current_year }} - Plateforme Médicale XAI | Développé pour la recherche et l'enseignement médical
+    </p>
+</div>
+{% endblock %}

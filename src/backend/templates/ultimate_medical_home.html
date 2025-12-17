@@ -1,0 +1,848 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Plateforme Médicale XAI{% endblock %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h1 class="display-6 fw-bold text-primary mb-2">
+        <i class="fas fa-brain me-2"></i>
+        Dashboard XAI Professionnel
+    </h1>
+    <p class="lead">
+        Bienvenue, <strong>Dr. {{ user.full_name }}</strong> • {{ user.institution }}
+    </p>
+</div>
+
+<!-- Statistiques rapides -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-primary">{{ model_info.total_analyses }}</h2>
+                <p class="text-muted mb-0">Analyses totales</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-success">{{ model_info.successful_analyses }}</h2>
+                <p class="text-muted mb-0">Analyses réussies</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-warning">{{ model_info.xai_methods|default(5) }}</h2>
+                <p class="text-muted mb-0">Méthodes XAI</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-info">{{ classes|length }}</h2>
+                <p class="text-muted mb-0">Classes diagnostiques</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Formulaire d'analyse -->
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-upload me-2"></i>
+                    Nouvelle Analyse XAI Complète
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-file-image me-1"></i>
+                            Image de la lésion cutanée
+                        </label>
+                        <div class="border-2 border-dashed rounded-3 p-4 text-center bg-light"
+                             style="border-color: #dee2e6; border-style: dashed;">
+                            <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                            <h6>Déposer une image ici</h6>
+                            <p class="text-muted small mb-3">PNG, JPG jusqu'à 16MB • Résolution recommandée: {{ model_info.img_size[0] }}x{{ model_info.img_size[1] }}</p>
+                            <input type="file" class="form-control" id="file" name="file" accept="image/*" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-user me-1"></i>Âge du patient
+                            </label>
+                            <input type="number" class="form-control" name="age" min="0" max="120"
+                                   value="45" placeholder="45">
+                            <div class="form-text">Normalisé automatiquement</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-venus-mars me-1"></i>Sexe
+                            </label>
+                            <select class="form-control" name="sex">
+                                <option value="F">Féminin</option>
+                                <option value="M">Masculin</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-map-marker-alt me-1"></i>Localisation
+                            </label>
+                            <select class="form-control" name="localization">
+                                <option value="0">Tête/visage</option>
+                                <option value="1">Tronc</option>
+                                <option value="2">Bras/jambes</option>
+                                <option value="3">Mains/pieds</option>
+                                <option value="4">Autre</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-microscope me-1"></i>Techniques d'Explicabilité Activées
+                        </label>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="method-card method-occlusion">
+                                    <i class="fas fa-eye-slash fa-2x text-danger mb-2"></i>
+                                    <h6>Occlusion</h6>
+                                    <small>Zones critiques</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="method-card method-ig">
+                                    <i class="fas fa-chart-line fa-2x text-primary mb-2"></i>
+                                    <h6>Gradients Intégrés</h6>
+                                    <small>Attribution pixels</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="method-card method-attention">
+                                    <i class="fas fa-bullseye fa-2x text-success mb-2"></i>
+                                    <h6>Attention</h6>
+                                    <small>Focus modèle</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="method-card method-lime">
+                                    <i class="fas fa-chart-pie fa-2x text-purple mb-2"></i>
+                                    <h6>LIME</h6>
+                                    <small>Métadonnées</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-success btn-lg px-5">
+                            <i class="fas fa-play-circle me-2"></i>
+                            Lancer l'Analyse XAI Complète
+                        </button>
+                        <p class="text-muted mt-2 small">
+                            Durée estimée: 30-60 secondes (dépend de la taille de l'image)
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Résultats (caché par défaut) -->
+        <div id="results" style="display: none;">
+            <!-- Diagnostic principal avec confiance -->
+            <div class="card mb-4" id="diagnosticCard">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-diagnoses me-2"></i>
+                        Résultat du Diagnostic Assisté
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h2 id="predictedClass" class="text-primary fw-bold mb-2"></h2>
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="me-3">
+                                    <span class="fs-4 fw-bold" id="confidencePercent"></span>
+                                    <span class="text-muted"> confiance</span>
+                                </div>
+                                <div id="confidenceBadge"></div>
+                            </div>
+                            <div id="confidenceProgress" class="mb-3"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="consensusPanel" class="p-3 rounded" style="background: #f8f9fa;">
+                                <h6><i class="fas fa-handshake me-2"></i> Validation XAI</h6>
+                                <div id="consensusBadge" class="mb-2"></div>
+                                <small class="text-muted" id="consensusDetails"></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard XAI complet -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tachometer-alt me-2"></i>
+                        Dashboard XAI Multi-Techniques
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <img id="dashboardImage" class="img-fluid rounded shadow"
+                         alt="Dashboard XAI Multi-Techniques" style="max-width: 100%;">
+                    <p class="text-muted mt-3">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Synthèse des 3 méthodes XAI + métriques de confiance
+                    </p>
+                </div>
+            </div>
+
+            <!-- NOUVELLES FONCTIONNALITÉS -->
+            <!-- Visualisations 3D -->
+            <div class="card mb-4" id="viz3dSection" style="display: none;">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cube me-2"></i>
+                        Visualisations 3D Interactives
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs mb-3" id="viz3dTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="multi-tab" data-bs-toggle="tab" data-bs-target="#multi" type="button" role="tab">
+                                <i class="fas fa-th-large me-1"></i> Vue Multi-Techniques
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="occlusion3d-tab" data-bs-toggle="tab" data-bs-target="#occlusion3d" type="button" role="tab">
+                                <i class="fas fa-eye-slash me-1"></i> Occlusion 3D
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="consensus3d-tab" data-bs-toggle="tab" data-bs-target="#consensus3d" type="button" role="tab">
+                                <i class="fas fa-handshake me-1"></i> Consensus 3D
+                            </button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="viz3dContent">
+                        <div class="tab-pane fade show active" id="multi" role="tabpanel">
+                            <div id="viz3dMulti" class="viz3d-container"></div>
+                            <div class="mt-2 text-muted small">
+                                <i class="fas fa-mouse-pointer me-1"></i>
+                                Cliquez-glissez pour tourner • Molette pour zoomer
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="occlusion3d" role="tabpanel">
+                            <div id="viz3dOcclusion" class="viz3d-container"></div>
+                            <div class="mt-2 text-muted small">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Hauteur = importance des régions dans la prédiction
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="consensus3d" role="tabpanel">
+                            <div id="viz3dConsensus" class="viz3d-container"></div>
+                            <div class="mt-2 text-muted small">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Consensus entre les 3 méthodes XAI
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 alert alert-info">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Astuce :</strong> Ces visualisations 3D vous permettent d'explorer
+                        l'importance spatiale des différentes régions de l'image dans la décision du modèle.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Téléchargement PDF -->
+            <div class="card mb-4" id="pdfSection" style="display: none;">
+                <div class="card-header" style="background: linear-gradient(135deg, #3498db, #2980b9); color: white;">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-pdf me-2"></i>
+                        Rapport Médical PDF
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5><i class="fas fa-file-alt me-2"></i> Rapport Professionnel</h5>
+                            <p class="mb-0">
+                                Un rapport PDF complet a été généré avec le diagnostic, les probabilités,
+                                les métriques XAI et les recommandations cliniques.
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <a id="pdfDownloadBtn" class="btn btn-danger btn-lg" target="_blank">
+                                <i class="fas fa-download me-2"></i>
+                                Télécharger le PDF
+                            </a>
+                            <p class="text-muted mt-2 small" id="pdfFilename"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Explication LIME des métadonnées -->
+            <div class="card mb-4" id="limeSection" style="display: none;">
+                <div class="card-header" style="background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white;">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Impact des Métadonnées Cliniques (LIME)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <img id="limeImage" class="img-fluid rounded" alt="Analyse LIME">
+                        </div>
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-lightbulb me-2"></i> Interprétation</h6>
+                            <pre id="limeInterpretation" class="p-3 bg-light rounded"
+                                 style="font-size: 0.9em; white-space: pre-wrap;"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommandation clinique -->
+            <div class="card mb-4" id="recommendationSection" style="display: none;">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-stethoscope me-2"></i>
+                        Recommandation Clinique
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 id="recommendationTitle" class="mb-3"></h5>
+                            <p id="recommendationText" class="lead"></p>
+                            <div class="mt-4">
+                                <h6><i class="fas fa-clipboard-check me-2"></i> Prochaines étapes suggérées</h6>
+                                <ul id="nextSteps" class="list-unstyled">
+                                    <!-- Rempli par JavaScript -->
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-4 rounded text-center" id="confidenceCard">
+                                <h3 id="confidenceScore" class="display-4 fw-bold mb-3"></h3>
+                                <div id="confidenceLevel" class="badge fs-6 mb-3"></div>
+                                <p class="text-muted">Score de confiance composite</p>
+                                <div class="progress mb-2" style="height: 10px;">
+                                    <div id="confidenceBar" class="progress-bar" role="progressbar"></div>
+                                </div>
+                                <small class="text-muted">Basé sur consensus, accord et sparsité</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Images détaillées -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-images me-2"></i>
+                        Visualisations Détaillées
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6>Image Originale</h6>
+                            <img id="originalImage" class="img-fluid rounded shadow-sm">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6>Consensus XAI</h6>
+                            <img id="consensusImage" class="img-fluid rounded shadow-sm">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <h6 class="small">Occlusion</h6>
+                            <img id="occlusionImage" class="img-fluid rounded">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <h6 class="small">Gradients Intégrés</h6>
+                            <img id="igImage" class="img-fluid rounded">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <h6 class="small">Attention</h6>
+                            <img id="attentionImage" class="img-fluid rounded">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Informations utilisateur -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-user-md me-2"></i>
+                    Profil Professionnel
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <i class="fas fa-user-circle fa-3x text-primary mb-2"></i>
+                    <h5>Dr. {{ user.full_name }}</h5>
+                    <p class="text-muted mb-1">{{ user.institution }}</p>
+                    <span class="badge bg-primary">{{ user.role|default('Médecin') }}</span>
+                </div>
+                <hr>
+                <div class="small">
+                    <p><i class="fas fa-envelope me-2"></i> {{ user.email }}</p>
+                    <p><i class="fas fa-calendar me-2"></i> Membre depuis {{ user.created_at.strftime('%d/%m/%Y') if user.created_at else 'récemment' }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations modèle -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-brain me-2"></i>
+                    Modèle IA
+                </h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <td><strong>Nom</strong></td>
+                        <td>{{ model_info.name }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Résolution</strong></td>
+                        <td>{{ model_info.img_size[0] }}×{{ model_info.img_size[1] }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Métadonnées</strong></td>
+                        <td>{{ model_info.metadata_features }} features</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Statut</strong></td>
+                        <td><span class="badge bg-success">{{ model_info.model_status }}</span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Classes supportées -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-tags me-2"></i>
+                    Classes Diagnostiques
+                </h5>
+            </div>
+            <div class="card-body">
+                {% for class_name, color in {
+                    'AKIEC': '#FF6B6B', 'BCC': '#4ECDC4', 'BKL': '#45B7D1', 'DF': '#96CEB4',
+                    'MEL': '#FFEAA7', 'NV': '#DDA0DD', 'VASC': '#FFA07A', 'SCC': '#98D8C8'
+                }.items() %}
+                    <span class="badge d-block mb-2 p-2 text-start"
+                          style="background-color: {{ color }}20; color: {{ color }}; border-left: 3px solid {{ color }};">
+                        <i class="fas fa-circle me-1" style="color: {{ color }}"></i>
+                        {{ class_name }}
+                    </span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Analyses récentes -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-history me-2"></i>
+                    Historique Récent
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_analyses %}
+                    {% for analysis in recent_analyses %}
+                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                            <div>
+                                <i class="fas fa-file-image text-primary me-2"></i>
+                                <small>Analyse {{ loop.index }}</small>
+                            </div>
+                            <small class="text-muted">{{ analysis.time }}</small>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center mb-0">
+                        <i class="fas fa-inbox fa-2x mb-3"></i><br>
+                        Aucune analyse récente
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.method-card {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    background: #f8f9fa;
+    transition: all 0.3s;
+}
+.method-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.method-occlusion { border-top: 4px solid #dc3545; }
+.method-ig { border-top: 4px solid #007bff; }
+.method-attention { border-top: 4px solid #28a745; }
+.method-lime { border-top: 4px solid #9b59b6; }
+
+.viz3d-container {
+    height: 500px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f8f9fa;
+}
+
+.confidence-high {
+    border-left: 5px solid #28a745 !important;
+}
+
+.confidence-moderate {
+    border-left: 5px solid #ffc107 !important;
+}
+
+.confidence-low {
+    border-left: 5px solid #dc3545 !important;
+}
+</style>
+
+<script>
+// Gestion du formulaire
+document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    showLoading('Analyse XAI en cours...',
+               'Génération des 4 techniques d\'explicabilité, visualisations 3D et rapport PDF...');
+
+    try {
+        const response = await fetch('/api/predict_ultimate', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            displayResults(result);
+            hideLoading();
+            showAlert('Analyse terminée avec succès !', 'success');
+        } else {
+            hideLoading();
+            showAlert('Erreur: ' + result.error, 'danger');
+        }
+    } catch (error) {
+        hideLoading();
+        showAlert('Erreur réseau: ' + error.message, 'danger');
+    }
+});
+
+function displayResults(data) {
+    console.log('Données reçues de l\'API:', data);
+
+    // Afficher section résultats
+    document.getElementById('results').style.display = 'block';
+
+    // Diagnostic principal
+    document.getElementById('predictedClass').textContent = data.predicted_class;
+    document.getElementById('confidencePercent').textContent = data.confidence_percent;
+
+    // Badge de confiance
+    const confidence = data.confidence;
+    let confidenceBadge = '';
+    if (confidence > 0.8) {
+        confidenceBadge = '<span class="badge bg-success">TRÈS ÉLEVÉE</span>';
+    } else if (confidence > 0.6) {
+        confidenceBadge = '<span class="badge bg-warning">ÉLEVÉE</span>';
+    } else {
+        confidenceBadge = '<span class="badge bg-secondary">MODÉRÉE</span>';
+    }
+    document.getElementById('confidenceBadge').innerHTML = confidenceBadge;
+
+    // Barre de progression confiance
+    document.getElementById('confidenceProgress').innerHTML = `
+        <div class="progress" style="height: 20px;">
+            <div class="progress-bar ${confidence > 0.8 ? 'bg-success' : confidence > 0.6 ? 'bg-warning' : 'bg-secondary'}"
+                 role="progressbar" style="width: ${data.confidence * 100}%">
+                ${data.confidence_percent}
+            </div>
+        </div>
+    `;
+
+    // Métriques de confiance XAI
+    const confMetrics = data.confidence_metrics;
+    const confidenceLevel = confMetrics.confidence_level;
+    const confidenceColor = confMetrics.confidence_color;
+
+    // Panel consensus
+    document.getElementById('consensusBadge').innerHTML = `
+        <span class="badge bg-${confidenceColor}">${confidenceLevel}</span>
+        <span class="badge bg-info ms-2">Consensus: ${confMetrics.consensus_strength.toFixed(2)}</span>
+        <span class="badge bg-secondary ms-2">Accord: ${confMetrics.avg_agreement.toFixed(2)}</span>
+    `;
+
+    document.getElementById('consensusDetails').textContent =
+        `Sparsité: ${confMetrics.sparsity.toFixed(2)} • Score composite: ${confMetrics.confidence_score.toFixed(2)}`;
+
+    // Dashboard principal
+    document.getElementById('dashboardImage').src = 'data:image/png;base64,' + data.dashboard_complete;
+
+    // ===== CORRECTION VISUALISATIONS 3D - VERSION CORRIGÉE =====
+    console.log('Section 3D - Vérification des données:', {
+        has_viz_3d_multi_html: !!data.viz_3d_multi_html,
+        has_viz_3d_occlusion_html: !!data.viz_3d_occlusion_html,
+        has_viz_3d_consensus_html: !!data.viz_3d_consensus_html
+    });
+
+    // TOUJOURS AFFICHER LA SECTION 3D (même sans données)
+    const viz3dSection = document.getElementById('viz3dSection');
+    viz3dSection.style.display = 'block';
+
+    // Effacer les contenus précédents
+    document.getElementById('viz3dMulti').innerHTML = '';
+    document.getElementById('viz3dOcclusion').innerHTML = '';
+    document.getElementById('viz3dConsensus').innerHTML = '';
+
+    // Vérifier si nous avons des données 3D valides
+    if (data.viz_3d_multi_html && data.viz_3d_multi_html.trim() !== '' &&
+        data.viz_3d_occlusion_html && data.viz_3d_consensus_html) {
+
+        console.log('Insertion des visualisations 3D...');
+
+        // Insérer les HTML Plotly
+        document.getElementById('viz3dMulti').innerHTML = data.viz_3d_multi_html;
+        document.getElementById('viz3dOcclusion').innerHTML = data.viz_3d_occlusion_html;
+        document.getElementById('viz3dConsensus').innerHTML = data.viz_3d_consensus_html;
+
+        // Initialiser Plotly après insertion
+        setTimeout(() => {
+            if (typeof Plotly !== 'undefined') {
+                console.log('Initialisation Plotly...');
+                ['viz3dMulti', 'viz3dOcclusion', 'viz3dConsensus'].forEach(id => {
+                    const plotDiv = document.getElementById(id);
+                    if (plotDiv && plotDiv.innerHTML.trim() !== '') {
+                        try {
+                            Plotly.Plots.resize(plotDiv);
+                            console.log(`Plotly initialisé pour: ${id}`);
+                        } catch (error) {
+                            console.warn(`Erreur Plotly pour ${id}:`, error);
+                        }
+                    }
+                });
+            }
+        }, 500);
+    } else {
+        console.log('Données 3D non disponibles, affichage placeholder...');
+
+        // Afficher des placeholders explicatifs
+        const placeholderHTML = `
+            <div class="d-flex flex-column justify-content-center align-items-center h-100 p-4">
+                <i class="fas fa-cube fa-4x text-muted mb-3"></i>
+                <h5 class="text-muted mb-2">Visualisations 3D</h5>
+                <p class="text-center text-muted mb-3">
+                    ${data.viz_3d_multi_html ? 'Données en cours de traitement...' : 'Les visualisations 3D seront disponibles dans une future mise à jour.'}
+                </p>
+                <div class="alert alert-info small">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Cliquez-glissez pour tourner • Molette pour zoomer
+                </div>
+            </div>
+        `;
+
+        document.getElementById('viz3dMulti').innerHTML = placeholderHTML;
+        document.getElementById('viz3dOcclusion').innerHTML = placeholderHTML;
+        document.getElementById('viz3dConsensus').innerHTML = placeholderHTML;
+    }
+
+    // PDF Report
+    if (data.pdf_report_url) {
+        document.getElementById('pdfSection').style.display = 'block';
+        document.getElementById('pdfDownloadBtn').href = data.pdf_report_url;
+        document.getElementById('pdfFilename').textContent = data.pdf_filename || 'Rapport médical.pdf';
+    }
+
+    // Images détaillées
+    document.getElementById('originalImage').src = 'data:image/png;base64,' + data.original_image;
+    document.getElementById('occlusionImage').src = 'data:image/png;base64,' + data.overlay_occlusion;
+    document.getElementById('igImage').src = 'data:image/png;base64,' + data.overlay_integrated_gradients;
+    document.getElementById('attentionImage').src = 'data:image/png;base64,' + data.overlay_attention;
+    document.getElementById('consensusImage').src = 'data:image/png;base64,' + data.overlay_consensus;
+
+    // Section LIME
+    if (data.lime_metadata) {
+        document.getElementById('limeSection').style.display = 'block';
+        document.getElementById('limeImage').src = 'data:image/png;base64,' + data.lime_metadata;
+        document.getElementById('limeInterpretation').textContent = data.lime_interpretation ||
+            'Analyse des contributions des métadonnées au diagnostic.';
+    }
+
+    // Section recommandation
+    document.getElementById('recommendationSection').style.display = 'block';
+    document.getElementById('recommendationTitle').textContent = confMetrics.recommendation;
+    document.getElementById('recommendationText').textContent =
+        `Basé sur un score de confiance de ${confMetrics.confidence_score.toFixed(2)}/1.00, ` +
+        `avec un consensus de ${confMetrics.consensus_strength.toFixed(2)} entre les méthodes XAI.`;
+
+    // Carte de confiance
+    document.getElementById('confidenceScore').textContent = confMetrics.confidence_score.toFixed(2);
+    document.getElementById('confidenceLevel').className = `badge bg-${confidenceColor} fs-6`;
+    document.getElementById('confidenceLevel').textContent = confidenceLevel;
+    document.getElementById('confidenceBar').className = `progress-bar bg-${confidenceColor}`;
+    document.getElementById('confidenceBar').style.width = `${confMetrics.confidence_score * 100}%`;
+
+    // Mettre à jour le style de la carte de confiance
+    const confidenceCard = document.getElementById('confidenceCard');
+    confidenceCard.style.background = confidenceColor === 'success' ? 'linear-gradient(135deg, #d4edda, #c3e6cb)' :
+                                     confidenceColor === 'warning' ? 'linear-gradient(135deg, #fff3cd, #ffeaa7)' :
+                                     'linear-gradient(135deg, #f8d7da, #f5c6cb)';
+
+    // Prochaines étapes
+    const nextSteps = document.getElementById('nextSteps');
+    nextSteps.innerHTML = '';
+
+    const steps = [];
+    if (confidenceLevel === 'ELEVE') {
+        steps.push('✅ Prise en charge selon protocole établi');
+        steps.push('✅ Surveillance standard recommandée');
+        steps.push('✅ Documentation dans le dossier patient');
+        steps.push('✅ Contrôle à 6 mois selon recommandations');
+    } else if (confidenceLevel === 'MODERE') {
+        steps.push('🔄 Validation par dermatologue recommandée');
+        steps.push('📋 Biopsie à considérer selon contexte clinique');
+        steps.push('📊 Suivi rapproché à 3 mois');
+        steps.push('📸 Documentation photographique de référence');
+    } else {
+        steps.push('🔴 Biopsie fortement recommandée');
+        steps.push('👥 Discussion en réunion de concertation pluridisciplinaire');
+        steps.push('📞 Contact patient pour information complémentaire');
+        steps.push('⚠️ Surveillance étroite requise');
+    }
+
+    steps.forEach(step => {
+        const li = document.createElement('li');
+        li.className = 'mb-2';
+        li.innerHTML = `<i class="fas fa-arrow-right me-2 text-muted"></i> ${step}`;
+        nextSteps.appendChild(li);
+    });
+
+    // Mettre à jour la carte diagnostic avec la classe de confiance
+    const diagnosticCard = document.getElementById('diagnosticCard');
+    diagnosticCard.className = diagnosticCard.className.replace(/confidence-\w+/g, '');
+    diagnosticCard.classList.add(`confidence-${confidenceColor}`);
+
+    // Ajouter un effet visuel sur le diagnostic
+    if (confidence > 0.8) {
+        diagnosticCard.style.boxShadow = '0 0 20px rgba(40, 167, 69, 0.3)';
+    } else if (confidence > 0.6) {
+        diagnosticCard.style.boxShadow = '0 0 20px rgba(255, 193, 7, 0.3)';
+    } else {
+        diagnosticCard.style.boxShadow = '0 0 20px rgba(220, 53, 69, 0.3)';
+    }
+
+    // Scroll vers résultats
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Gestion des tabs Bootstrap
+document.addEventListener('DOMContentLoaded', function() {
+    const tabEls = document.querySelectorAll('#viz3dTabs button[data-bs-toggle="tab"]');
+    tabEls.forEach(tabEl => {
+        tabEl.addEventListener('shown.bs.tab', function(event) {
+            // Réinitialiser l'affichage Plotly quand on change d'onglet
+            setTimeout(() => {
+                if (typeof Plotly !== 'undefined') {
+                    const target = event.target.getAttribute('data-bs-target');
+                    let plotId;
+                    if (target === '#multi') plotId = 'viz3dMulti';
+                    else if (target === '#occlusion3d') plotId = 'viz3dOcclusion';
+                    else if (target === '#consensus3d') plotId = 'viz3dConsensus';
+
+                    if (plotId) {
+                        const plotDiv = document.getElementById(plotId);
+                        if (plotDiv && plotDiv.innerHTML.trim() !== '') {
+                            Plotly.Plots.resize(plotDiv);
+                        }
+                    }
+                }
+            }, 100);
+        });
+    });
+});
+
+// Fonction de test pour vérifier l'affichage 3D
+window.testSection3D = function() {
+    console.log('Test manuel de la section 3D...');
+
+    // Créer des données de test réalistes
+    const test3DHTML = `
+        <div class="plotly-graph-div" style="width: 100%; height: 500px;">
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px;">
+                <i class="fas fa-cube fa-3x mb-3"></i>
+                <h4>Visualisation 3D Interactive</h4>
+                <p class="mb-2">Simulation de graphique Plotly.js</p>
+                <small><i class="fas fa-mouse-pointer me-1"></i> Cliquez-glissez pour tourner</small>
+                <small><i class="fas fa-mouse me-1"></i> Molette pour zoomer</small>
+            </div>
+        </div>
+    `;
+
+    const testData = {
+        predicted_class: 'MEL',
+        confidence_percent: '87%',
+        confidence: 0.87,
+        confidence_metrics: {
+            confidence_level: 'ELEVE',
+            confidence_color: 'success',
+            consensus_strength: 0.85,
+            avg_agreement: 0.82,
+            sparsity: 0.72,
+            confidence_score: 0.86,
+            recommendation: 'Diagnostic fiable'
+        },
+        dashboard_complete: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==', // placeholder base64
+        viz_3d_multi_html: test3DHTML,
+        viz_3d_occlusion_html: test3DHTML,
+        viz_3d_consensus_html: test3DHTML,
+        original_image: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==',
+        overlay_occlusion: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==',
+        overlay_integrated_gradients: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==',
+        overlay_attention: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==',
+        overlay_consensus: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=='
+    };
+
+    // Injecter les données de test
+    displayResults(testData);
+
+    console.log('Test 3D terminé - la section devrait s\'afficher');
+};
+</script>
+
+{% endblock %}

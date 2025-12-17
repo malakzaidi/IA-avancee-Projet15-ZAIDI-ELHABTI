@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard XAI - {{ case_id }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-dark: #004d40;
+            --primary-light: #00796b;
+            --accent: #ff9800;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        /* Barre de navigation */
+        .navbar-xai {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+            box-shadow: 0 4px 20px rgba(0, 77, 64, 0.2);
+        }
+
+        /* Carte de diagnostic */
+        .diagnostic-card {
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: none;
+            transition: transform 0.3s;
+        }
+
+        .diagnostic-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .high-confidence {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .medium-confidence {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: #212529;
+        }
+
+        .low-confidence {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+
+        /* Section XAI */
+        .xai-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .xai-image {
+            border: 3px solid var(--primary-light);
+            border-radius: 10px;
+            max-width: 100%;
+            transition: all 0.3s;
+        }
+
+        .xai-image:hover {
+            box-shadow: 0 10px 30px rgba(0, 77, 64, 0.2);
+        }
+
+        /* Métriques */
+        .metric-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--accent);
+            height: 100%;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        /* Onglets */
+        .nav-tabs .nav-link {
+            border: none;
+            color: #6c757d;
+            font-weight: 500;
+            padding: 12px 20px;
+        }
+
+        .nav-tabs .nav-link.active {
+            background: var(--primary-dark);
+            color: white;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .tab-content {
+            background: white;
+            border-radius: 0 0 10px 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Contrôles */
+        .control-panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+        }
+
+        .control-label {
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .diagnostic-card {
+                padding: 15px;
+            }
+
+            .metric-value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-xai">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">
+                <i class="fas fa-arrow-left me-2"></i>Retour
+            </a>
+            <div class="navbar-text">
+                <span class="badge bg-light text-dark me-2">
+                    <i class="fas fa-hashtag me-1"></i>{{ case_id }}
+                </span>
+                <span class="badge bg-warning text-dark">
+                    <i class="fas fa-clock me-1"></i>
+                    {{ metadata.timestamp.split('T')[0] }}
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-4">
+        <div class="row">
+            <!-- Colonne principale -->
+            <div class="col-lg-8">
+                <!-- Carte de diagnostic -->
+                <div class="diagnostic-card {{ confidence_class }}">
+                    <div class="row align-items-center">
+                        <div class="col-md-3 text-center">
+                            <div class="display-1 fw-bold mb-2">
+                                {{ (metadata.prediction.confidence * 100)|round|int }}%
+                            </div>
+                            <span class="badge bg-white text-dark px-3 py-2">
+                                <i class="fas fa-{{ 'check-circle' if metadata.prediction.correct else 'exclamation-triangle' }} me-1"></i>
+                                {{ verdict_text }}
+                            </span>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <h6 class="text-uppercase opacity-75 mb-2">
+                                        <i class="fas fa-robot me-2"></i>Prédiction du modèle
+                                    </h6>
+                                    <h3 class="fw-bold mb-0">
+                                        {{ metadata.prediction.predicted_label }}
+                                    </h3>
+                                    <small class="opacity-75">Confiance: {{ (metadata.prediction.confidence * 100)|round(1) }}%</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <h6 class="text-uppercase opacity-75 mb-2">
+                                        <i class="fas fa-user-md me-2"></i>Vérité terrain
+                                    </h6>
+                                    <h3 class="fw-bold mb-0 {{ 'text-success' if metadata.prediction.correct else 'text-danger' }}">
+                                        {{ metadata.prediction.true_label }}
+                                    </h3>
+                                    <small class="{{ 'text-success' if metadata.prediction.correct else 'text-danger' }}">
+                                        <i class="fas fa-{{ 'check' if metadata.prediction.correct else 'times' }} me-1"></i>
+                                        {{ 'CORRECT' if metadata.prediction.correct else 'ERREUR' }}
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Score de consensus -->
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3">
+                                            <span class="badge bg-info px-3 py-2">
+                                                <i class="fas fa-layer-group me-1"></i>
+                                                Score de consensus: {{ metadata.xai_metrics.consensus_score }}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <small class="opacity-75">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                {{ metadata.clinical_notes }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section XAI -->
+                <div class="xai-section">
+                    <h4 class="fw-bold mb-4 text-primary">
+                        <i class="fas fa-microscope me-2"></i>Preuves XAI Multi-Techniques
+                    </h4>
+
+                    <!-- Onglets XAI -->
+                    <ul class="nav nav-tabs mb-4" id="xaiTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="consensus-tab" data-bs-toggle="tab" data-bs-target="#consensus">
+                                <i class="fas fa-layer-group me-2"></i>Consensus
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="occlusion-tab" data-bs-toggle="tab" data-bs-target="#occlusion">
+                                <i class="fas fa-square me-2"></i>Occlusion
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="gradients-tab" data-bs-toggle="tab" data-bs-target="#gradients">
+                                <i class="fas fa-wave-square me-2"></i>Gradients
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="attention-tab" data-bs-toggle="tab" data-bs-target="#attention">
+                                <i class="fas fa-eye me-2"></i>Attention
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="xaiTabContent">
+                        <!-- Panel Consensus -->
+                        <div class="tab-pane fade show active" id="consensus">
+                            <div class="text-center">
+                                <img src="data:image/png;base64,{{ xai_image_b64 }}"
+                                     class="xai-image"
+                                     alt="Carte de Consensus XAI">
+                                <div class="mt-4">
+                                    <h6 class="fw-bold">Interprétation du consensus</h6>
+                                    <p class="text-muted">
+                                        La superposition montre les régions les plus importantes selon l'accord
+                                        entre les trois méthodes XAI. Les zones en rouge/jaune indiquent
+                                        une forte convergence d'importance.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Autres panels (simulation) -->
+                        <div class="tab-pane fade" id="occlusion">
+                            <div class="text-center py-5">
+                                <i class="fas fa-cogs fa-3x text-muted mb-3"></i>
+                                <h6>Analyse par occlusion</h6>
+                                <p class="text-muted">Cette visualisation sera générée dynamiquement</p>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="gradients">
+                            <div class="text-center py-5">
+                                <i class="fas fa-project-diagram fa-3x text-muted mb-3"></i>
+                                <h6>Gradients intégrés</h6>
+                                <p class="text-muted">Cette visualisation sera générée dynamiquement</p>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="attention">
+                            <div class="text-center py-5">
+                                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                                <h6>Carte d'attention</h6>
+                                <p class="text-muted">Cette visualisation sera générée dynamiquement</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contrôles d'affichage -->
+                    <div class="control-panel mt-4">
+                        <h6 class="control-label">
+                            <i class="fas fa-sliders-h me-2"></i>Paramètres de visualisation
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Opacité de l'overlay</label>
+                                <input type="range" class="form-range" id="overlayOpacity" min="0" max="100" value="50">
+                                <small class="text-muted">Ajuste la transparence de la heatmap</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Méthode de lissage</label>
+                                <select class="form-select" id="smoothingMethod">
+                                    <option value="gaussian">Gaussien (σ=10)</option>
+                                    <option value="median">Médian (3x3)</option>
+                                    <option value="none">Aucun lissage</option>
+                                </select>
+                                <small class="text-muted">Contrôle le lissage des cartes XAI</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barre latérale -->
+            <div class="col-lg-4">
+                <!-- Top 5 Prédictions -->
+                <div class="xai-section mb-4">
+                    <h6 class="fw-bold mb-3 text-primary">
+                        <i class="fas fa-chart-bar me-2"></i>Top 5 Prédictions
+                    </h6>
+                    <img src="data:image/png;base64,{{ top_5_chart_b64 }}"
+                         class="img-fluid"
+                         alt="Graphique Top 5">
+                </div>
+
+                <!-- Robustesse XAI -->
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-3 text-primary">
+                        <i class="fas fa-link me-2"></i>Robustesse XAI
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-4">
+                            <div class="metric-card text-center">
+                                <div class="metric-value">
+                                    {{ metadata.xai_metrics.correlation_matrix.occlusion_vs_intgrad }}
+                                </div>
+                                <small class="text-muted">Occ-IG</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="metric-card text-center">
+                                <div class="metric-value">
+                                    {{ metadata.xai_metrics.correlation_matrix.occlusion_vs_attention }}
+                                </div>
+                                <small class="text-muted">Occ-Att</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="metric-card text-center">
+                                <div class="metric-value">
+                                    {{ metadata.xai_metrics.correlation_matrix.intgrad_vs_attention }}
+                                </div>
+                                <small class="text-muted">IG-Att</small>
+                            </div>
+                        </div>
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Corrélations inter-méthodes (0-1). Plus proche de 1 = plus de convergence.
+                    </small>
+                </div>
+
+                <!-- Métriques détaillées -->
+                <div class="xai-section">
+                    <h6 class="fw-bold mb-3 text-primary">
+                        <i class="fas fa-calculator me-2"></i>Métriques détaillées
+                    </h6>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Probabilité NV:</span>
+                            <span class="fw-bold">
+                                {{ (metadata.prediction.nv_probability * 100)|round(1) }}%
+                            </span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success"
+                                 style="width: {{ metadata.prediction.nv_probability * 100 }}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Probabilité VASC:</span>
+                            <span class="fw-bold">
+                                {{ (metadata.prediction.vasc_probability * 100)|round(1) }}%
+                            </span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-danger"
+                                 style="width: {{ metadata.prediction.vasc_probability * 100 }}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Différence NV-VASC:</span>
+                            <span class="fw-bold {{ 'text-success' if metadata.prediction.nv_vasc_difference > 0 else 'text-danger' }}">
+                                {{ metadata.prediction.nv_vasc_difference|round(4) }}
+                            </span>
+                        </div>
+                        <small class="text-muted">
+                            Positive = biais NV, Négative = biais VASC
+                        </small>
+                    </div>
+
+                    <hr>
+
+                    <!-- Informations techniques -->
+                    <div>
+                        <h6 class="fw-bold mb-3 text-primary">
+                            <i class="fas fa-info-circle me-2"></i>Informations techniques
+                        </h6>
+                        <div class="row small g-2">
+                            <div class="col-6">
+                                <span class="text-muted">Type de cas:</span>
+                            </div>
+                            <div class="col-6 text-end">
+                                <span class="fw-bold">{{ metadata.case_type }}</span>
+                            </div>
+
+                            <div class="col-6">
+                                <span class="text-muted">Index image:</span>
+                            </div>
+                            <div class="col-6 text-end">
+                                <span class="fw-bold">{{ metadata.image_index }}</span>
+                            </div>
+
+                            <div class="col-6">
+                                <span class="text-muted">Timestamp:</span>
+                            </div>
+                            <div class="col-6 text-end">
+                                <span class="fw-bold">{{ metadata.timestamp.split('T')[0] }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialisation des onglets
+        const triggerTabList = document.querySelectorAll('#xaiTabs button');
+        triggerTabList.forEach(triggerEl => {
+            const tabTrigger = new bootstrap.Tab(triggerEl);
+            triggerEl.addEventListener('click', event => {
+                event.preventDefault();
+                tabTrigger.show();
+            });
+        });
+
+        // Gestion de l'opacité
+        const opacitySlider = document.getElementById('overlayOpacity');
+        opacitySlider.addEventListener('input', function() {
+            console.log('Opacité ajustée à:', this.value + '%');
+            // Ici, vous pourriez mettre à jour l'image via AJAX
+        });
+
+        // Graphique de performance (exemple)
+        const ctx = document.createElement('canvas');
+        ctx.width = 300;
+        ctx.height = 200;
+        // Vous pouvez ajouter un graphique ici si nécessaire
+    </script>
+</body>
+</html>

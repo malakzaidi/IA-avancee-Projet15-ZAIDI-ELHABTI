@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Inscription - Plateforme Médicale XAI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card shadow-lg">
+            <div class="card-header text-center bg-success text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Inscription Professionnelle
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <form id="signupForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="full_name" class="form-label">
+                                <i class="fas fa-user me-1"></i>
+                                Nom complet
+                            </label>
+                            <input type="text" class="form-control" id="full_name" name="full_name"
+                                   placeholder="Dr. Jean Dupont" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="institution" class="form-label">
+                                <i class="fas fa-hospital me-1"></i>
+                                Institution
+                            </label>
+                            <input type="text" class="form-control" id="institution" name="institution"
+                                   placeholder="CHU de Paris" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope me-1"></i>
+                            Email professionnel
+                        </label>
+                        <input type="email" class="form-control" id="email" name="email"
+                               placeholder="jean.dupont@chu-paris.fr" required>
+                        <div class="form-text">
+                            Utilisez votre email professionnel pour vérification.
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-lock me-1"></i>
+                                Mot de passe
+                            </label>
+                            <input type="password" class="form-control" id="password" name="password"
+                                   placeholder="••••••••" required minlength="6">
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label for="confirm_password" class="form-label">
+                                <i class="fas fa-lock me-1"></i>
+                                Confirmer le mot de passe
+                            </label>
+                            <input type="password" class="form-control" id="confirm_password"
+                                   placeholder="••••••••" required minlength="6">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                J'accepte les <a href="#" class="text-decoration-none">conditions d'utilisation</a>
+                                et confirme être un professionnel de santé.
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>
+                            Créer mon compte
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <p class="mb-0">Déjà inscrit ?</p>
+                        <a href="/login" class="text-decoration-none fw-bold">
+                            Se connecter à mon compte
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5><i class="fas fa-shield-alt me-2 text-primary"></i> Sécurité des données</h5>
+                <ul class="mb-0">
+                    <li>✅ Toutes les données sont chiffrées et anonymisées</li>
+                    <li>✅ Conforme RGPD et réglementation médicale</li>
+                    <li>✅ Accès réservé aux professionnels autorisés</li>
+                    <li>✅ Audit trail complet de toutes les activités</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('signupForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    // Vérifier que les mots de passe correspondent
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+
+    if (password !== confirmPassword) {
+        showAlert('Les mots de passe ne correspondent pas.', 'danger');
+        return;
+    }
+
+    if (password.length < 6) {
+        showAlert('Le mot de passe doit contenir au moins 6 caractères.', 'danger');
+        return;
+    }
+
+    showLoading("Création du compte...");
+
+    const formData = new FormData(this);
+
+    try {
+        const response = await fetch('/signup', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showAlert('Compte créé avec succès ! Redirection...', 'success');
+            setTimeout(() => {
+                window.location.href = result.redirect;
+            }, 1000);
+        } else {
+            hideLoading();
+            showAlert(result.error || 'Erreur lors de la création du compte', 'danger');
+        }
+    } catch (error) {
+        hideLoading();
+        showAlert('Erreur réseau. Veuillez réessayer.', 'danger');
+    }
+});
+</script>
+{% endblock %}

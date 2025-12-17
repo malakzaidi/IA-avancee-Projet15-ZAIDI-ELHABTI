@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page non trouvée - {{ app_name }}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #27ae60;
+            --light-bg: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .error-container {
+            text-align: center;
+            max-width: 600px;
+            padding: 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .error-icon {
+            font-size: 6rem;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+
+        .error-code {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+        .error-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .error-message {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .btn-medical {
+            background: var(--secondary-color);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-medical:hover {
+            background: #2980b9;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .suggestions {
+            background: var(--light-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .suggestions h5 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .suggestions ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+
+        .suggestions li {
+            margin-bottom: 8px;
+        }
+
+        .search-box {
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 12px 15px 12px 45px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+        .contact-support {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #e9ecef;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .error-container {
+                padding: 20px;
+            }
+
+            .error-code {
+                font-size: 3.5rem;
+            }
+
+            .error-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+
+        <div class="error-code">404</div>
+        <h1 class="error-title">Page non trouvée</h1>
+
+        <p class="error-message">
+            Désolé, la page que vous recherchez n'existe pas ou a été déplacée.
+            <br>
+            Vérifiez l'URL ou utilisez les liens ci-dessous pour naviguer.
+        </p>
+
+        <div class="d-flex flex-wrap gap-3 justify-content-center mb-4">
+            <a href="{{ url_for('index') }}" class="btn-medical">
+                <i class="fas fa-home me-2"></i> Page d'accueil
+            </a>
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('dashboard') }}" class="btn-medical">
+                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+            </a>
+            <a href="{{ url_for('analysis_history') }}" class="btn btn-outline-primary">
+                <i class="fas fa-history me-2"></i> Historique
+            </a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="btn-medical">
+                <i class="fas fa-sign-in-alt me-2"></i> Connexion
+            </a>
+            <a href="{{ url_for('signup') }}" class="btn btn-outline-primary">
+                <i class="fas fa-user-plus me-2"></i> Inscription
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Search Box -->
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Rechercher sur le site..." id="siteSearch">
+        </div>
+
+        <!-- Suggestions -->
+        <div class="suggestions">
+            <h5><i class="fas fa-lightbulb me-2"></i> Suggestions :</h5>
+            <ul>
+                <li>Vérifiez l'orthographe de l'URL</li>
+                <li>Utilisez le menu de navigation principal</li>
+                <li>Retournez à la page précédente</li>
+                <li>Contactez le support si le problème persiste</li>
+            </ul>
+        </div>
+
+        <!-- Contact Support -->
+        <div class="contact-support">
+            <p class="mb-2">
+                <i class="fas fa-life-ring me-2"></i>
+                Besoin d'aide ?
+                <a href="mailto:support@medical-xai.fr" class="text-decoration-none">
+                    Contactez notre support
+                </a>
+            </p>
+            <p class="mb-0 small text-muted">
+               Référence d'erreur : 404_{{ current_year }}{{ '%02d%02d' | format(now.month, now.day) }}_{{ range(1000, 9999) | random }}
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Search functionality
+            const searchInput = document.getElementById('siteSearch');
+
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const query = this.value.trim();
+                    if (query) {
+                        // In a real application, this would redirect to search results
+                        alert(`Recherche pour : ${query}\n(Fonctionnalité de recherche à implémenter)`);
+                        this.value = '';
+                    }
+                }
+            });
+
+            // Auto-focus search input
+            searchInput.focus();
+        });
+    </script>
+</body>
+</html>

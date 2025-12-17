@@ -1,5 +1,4 @@
 [core]
-    remote = drive
-['remote "drive"']
-    url = gdrive://1ZiB45gLa8k5szeTe-xohUeBB0x4kLGUN
-
+    remote = isic
+['remote "isic"']
+    url = gdrive://1IloRDRMk1DTUwwR2T1RG-ZkDtiolvqTW

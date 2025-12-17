@@ -10,3 +10,20 @@ eda_results/
 .idea/
 
 .ipynb_checkpoints/
+
+/uploads
+/src/backend/uploads
+/instance
+
+/data
+/src/backend/models
+/src/backend/reports
+/src/backend/logs
+
+
+/.dvc/cache
+/.dvc/config.local
+/.dvc/gdrive-creds.json
+/.dvc/tmp
+/.dvc/secret.json
+/.dvc/gdrive_user_credentials.json

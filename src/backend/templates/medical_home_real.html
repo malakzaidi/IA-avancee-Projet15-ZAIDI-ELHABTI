@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏥 Plateforme Médicale XAI - Diagnostic Lésions Cutanées</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2c7be5 0%, #1a5bb8 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .header p { font-size: 1.2em; opacity: 0.9; }
+
+        .content { padding: 40px 30px; }
+
+        .status {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-radius: 15px;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            border: 2px solid #2c7be5;
+        }
+        .status strong { color: #1a5bb8; }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        .card {
+            background: #f8fbff;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 6px solid #2c7be5;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .card h3 { margin-bottom: 15px; color: #2c7be5; font-size: 1.4em; }
+        .card ul { padding-left: 20px; line-height: 1.8; }
+        .card ul li { margin: 8px 0; }
+
+        .upload-section {
+            text-align: center;
+            margin: 40px 0;
+            padding: 40px;
+            background: linear-gradient(135deg, #f0f8ff 0%, #e1f5fe 100%);
+            border-radius: 20px;
+            border: 3px dashed #2c7be5;
+        }
+        .upload-section h2 { color: #1a5bb8; margin-bottom: 25px; }
+        .upload-section input, .upload-section select {
+            padding: 14px 20px;
+            margin: 10px;
+            font-size: 16px;
+            border: 2px solid #2c7be5;
+            border-radius: 10px;
+            min-width: 200px;
+            transition: all 0.3s;
+        }
+        .upload-section input:focus, .upload-section select:focus {
+            outline: none;
+            border-color: #1a5bb8;
+            box-shadow: 0 0 10px rgba(44, 123, 229, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, #2c7be5 0%, #1a5bb8 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 40px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 15px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(44, 123, 229, 0.4);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(44, 123, 229, 0.6);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            margin: 20px auto;
+            text-align: center;
+        }
+        .loading.active { display: block; }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2c7be5;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            display: none;
+            margin-top: 40px;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        .results.active { display: block; }
+        .results h2 { color: #2c7be5; margin-bottom: 25px; text-align: center; }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .result-card {
+            background: #f8fbff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .result-card h3 { color: #2c7be5; margin-bottom: 15px; }
+        .result-card img {
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .prediction-box {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        .prediction-box h3 { font-size: 2em; margin-bottom: 10px; }
+        .prediction-box .confidence { font-size: 1.5em; font-weight: bold; }
+
+        .probabilities {
+            margin-top: 20px;
+        }
+        .prob-bar {
+            margin: 12px 0;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .prob-fill {
+            height: 35px;
+            background: linear-gradient(90deg, #2c7be5 0%, #1a5bb8 100%);
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            color: white;
+            font-weight: bold;
+            transition: width 1s ease;
+        }
+        .prob-label {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: bold;
+            z-index: 1;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: #f8fbff;
+            color: #666;
+            font-size: 0.95em;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .error-message {
+            display: none;
+            background: #f44336;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .error-message.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Plateforme Médicale XAI</h1>
+            <p>Diagnostic IA des Lésions Cutanées avec Explications Visuelles</p>
+        </div>
+
+        <div class="content">
+            <div class="status">
+                ✅ <strong>Modèle :</strong> {{ model_info.name }}<br>
+                📏 <strong>Taille image :</strong> {{ model_info.img_size }} | 🔢 <strong>Métadonnées :</strong> {{ model_info.metadata_features }} features<br>
+                🧠 <strong>Multi-entrées :</strong> {{ "Oui" if model_info.multi_input else "Non" }} | 🎯 <strong>XAI :</strong> Integrated Gradients activé
+            </div>
+
+            <div class="info-grid">
+                <div class="card">
+                    <h3>📊 Statistiques</h3>
+                    <p><strong>Prédictions totales :</strong> {{ stats.total_predictions }}</p>
+                    <p><strong>Statut modèle :</strong> {{ stats.model_status }}</p>
+                    <p><strong>XAI activé :</strong> {{ "Oui" if stats.xai_enabled else "Non" }}</p>
+                    <p><strong>Dernière MAJ :</strong> {{ stats.last_update }}</p>
+                </div>
+
+                <div class="card">
+                    <h3>🎯 Classes HAM10000 (8 types)</h3>
+                    <ul>
+                        <li><strong>AKIEC</strong> - Carcinome intraépithélial</li>
+                        <li><strong>BCC</strong> - Carcinome basocellulaire</li>
+                        <li><strong>BKL</strong> - Kératose bénigne</li>
+                        <li><strong>DF</strong> - Dermatofibrome</li>
+                        <li><strong>MEL</strong> - Mélanome</li>
+                        <li><strong>NV</strong> - Nævus mélanocytaire</li>
+                        <li><strong>VASC</strong> - Lésion vasculaire</li>
+                        <li><strong>SCC</strong> - Carcinome spinocellulaire</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="upload-section">
+                <h2>🔬 Analyser une Lésion Cutanée</h2>
+                <form id="predictForm" enctype="multipart/form-data">
+                    <div>
+                        <input type="file" name="file" id="fileInput" accept="image/*" required>
+                    </div>
+                    <div>
+                        <input type="number" name="age" placeholder="Âge du patient (optionnel)" min="0" max="120">
+                        <select name="sex">
+                            <option value="">Sexe (optionnel)</option>
+                            <option value="M">Masculin</option>
+                            <option value="F">Féminin</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select name="localization">
+                            <option value="">Localisation (optionnel)</option>
+                            <option value="0">Tête/Cou</option>
+                            <option value="1">Tronc</option>
+                            <option value="2">Membres supérieurs</option>
+                            <option value="3">Membres inférieurs</option>
+                            <option value="4">Paumes/Plantes</option>
+                            <option value="5">Dos</option>
+                            <option value="6">Ventre</option>
+                            <option value="7">Poitrine</option>
+                            <option value="8">Autres</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="submitBtn">🚀 Lancer le Diagnostic IA + XAI</button>
+                </form>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 15px; color: #2c7be5; font-weight: bold;">
+                        Analyse en cours...<br>
+                        <small>Génération des prédictions et explications XAI (Integrated Gradients)</small>
+                    </p>
+                </div>
+
+                <div class="error-message" id="errorMessage"></div>
+            </div>
+
+            <div class="results" id="results">
+                <h2>📋 Résultats du Diagnostic IA</h2>
+
+                <div class="prediction-box" id="predictionBox">
+                    <h3 id="predictedClass">-</h3>
+                    <div class="confidence" id="confidence">-</div>
+                    <p style="margin-top: 10px; font-size: 0.9em;" id="timestamp">-</p>
+                </div>
+
+                <div class="result-grid">
+                    <div class="result-card">
+                        <h3>📸 Image Originale</h3>
+                        <img id="originalImage" src="" alt="Image originale">
+                    </div>
+
+                    <div class="result-card">
+                        <h3>🔥 XAI - Integrated Gradients</h3>
+                        <p style="margin-bottom: 10px; color: #666;">
+                            Zones importantes pour la décision du modèle (rouge = forte influence)
+                        </p>
+                        <img id="xaiImage" src="" alt="Explication XAI">
+                    </div>
+                </div>
+
+                <div class="result-card probabilities" id="probabilitiesSection">
+                    <h3>📊 Probabilités pour toutes les classes</h3>
+                    <div id="probabilityBars"></div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            🏥 Plateforme Médicale avec XAI - Modèle {{ model_info.name }}<br>
+            Integrated Gradients pour l'explicabilité | {{ current_year }}
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('predictForm').onsubmit = async function(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Réinitialiser
+            results.classList.remove('active');
+            errorMessage.classList.remove('active');
+            loading.classList.add('active');
+            submitBtn.disabled = true;
+
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch('/api/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                loading.classList.remove('active');
+                submitBtn.disabled = false;
+
+                if (data.success) {
+                    // Afficher les résultats
+                    document.getElementById('predictedClass').textContent =
+                        '🎯 Diagnostic : ' + data.predicted_class;
+                    document.getElementById('confidence').textContent =
+                        'Confiance : ' + data.confidence_percent;
+                    document.getElementById('timestamp').textContent =
+                        '🕐 ' + new Date(data.timestamp).toLocaleString('fr-FR');
+
+                    // Images
+                    document.getElementById('originalImage').src =
+                        'data:image/png;base64,' + data.original_image;
+                    document.getElementById('xaiImage').src =
+                        'data:image/png;base64,' + data.xai_integrated_gradients;
+
+                    // Probabilités
+                    const probBars = document.getElementById('probabilityBars');
+                    probBars.innerHTML = '';
+
+                    const sortedProbs = Object.entries(data.probabilities)
+                        .sort((a, b) => b[1] - a[1]);
+
+                    sortedProbs.forEach(([className, prob]) => {
+                        const percent = (prob * 100).toFixed(1);
+                        const barDiv = document.createElement('div');
+                        barDiv.className = 'prob-bar';
+                        barDiv.innerHTML = `
+                            <span class="prob-label">${className}</span>
+                            <div class="prob-fill" style="width: ${percent}%">
+                                ${percent}%
+                            </div>
+                        `;
+                        probBars.appendChild(barDiv);
+                    });
+
+                    results.classList.add('active');
+                    results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                } else {
+                    errorMessage.textContent = '❌ Erreur : ' + data.error;
+                    errorMessage.classList.add('active');
+                }
+
+            } catch (error) {
+                loading.classList.remove('active');
+                submitBtn.disabled = false;
+                errorMessage.textContent = '❌ Erreur de connexion : ' + error.message;
+                errorMessage.classList.add('active');
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏥 Plateforme Médicale XAI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: none;
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 30px;
+            font-weight: 600;
+            border-radius: 10px;
+        }
+        .xai-method {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .result-image {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-width: 100%;
+            height: auto;
+        }
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            flex-direction: column;
+        }
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-hospital me-2"></i>
+                Plateforme Médicale XAI Ultimate
+            </a>
+            <span class="text-light">
+                <i class="fas fa-chart-line me-1"></i>
+                {{ model_info.total_analyses }} analyses
+            </span>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <!-- En-tête -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0"><i class="fas fa-rocket me-2"></i>Analyse Médicale avec XAI Multi-techniques</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 text-center">
+                                <i class="fas fa-brain fa-3x text-primary mb-2"></i>
+                                <h6>Modèle IA</h6>
+                                <small>{{ model_info.name }}</small>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <i class="fas fa-image fa-3x text-success mb-2"></i>
+                                <h6>Résolution</h6>
+                                <small>{{ model_info.img_size[0] }}x{{ model_info.img_size[1] }}</small>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <i class="fas fa-microscope fa-3x text-warning mb-2"></i>
+                                <h6>Méthodes XAI</h6>
+                                <small>{{ model_info.xai_methods }} techniques</small>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <i class="fas fa-check-circle fa-3x text-danger mb-2"></i>
+                                <h6>Statut</h6>
+                                <small>{{ model_info.model_status }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Formulaire -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-upload me-2"></i>Analyse d'Image</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="uploadForm" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label class="form-label">Image de la lésion</label>
+                                <input type="file" class="form-control" name="file" accept="image/*" required>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Âge</label>
+                                    <input type="number" class="form-control" name="age" placeholder="Ex: 45">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Sexe</label>
+                                    <select class="form-control" name="sex">
+                                        <option value="">Sélectionner</option>
+                                        <option value="M">Masculin</option>
+                                        <option value="F">Féminin</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Localisation</label>
+                                    <select class="form-control" name="localization">
+                                        <option value="0">Visage</option>
+                                        <option value="1">Torse</option>
+                                        <option value="2">Abdomen</option>
+                                        <option value="3">Dos</option>
+                                        <option value="4">Membres</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">Méthodes XAI</label>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="xai-method">
+                                            <i class="fas fa-chart-line fa-2x text-primary mb-2"></i>
+                                            <h6>Integrated Gradients</h6>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="xai-method">
+                                            <i class="fas fa-eye-slash fa-2x text-warning mb-2"></i>
+                                            <h6>Occlusion Sensitivity</h6>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="xai-method">
+                                            <i class="fas fa-bullseye fa-2x text-success mb-2"></i>
+                                            <h6>Attention Rollout</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                                <i class="fas fa-play-circle me-2"></i>
+                                Lancer l'Analyse XAI Complète
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Résultats -->
+                <div id="resultsSection" style="display: none;">
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Résultats</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <h4 id="predictedClass" class="text-primary"></h4>
+                                    <div class="display-4 fw-bold" id="confidenceValue"></div>
+                                    <div class="progress" style="height: 20px;">
+                                        <div id="confidenceBar" class="progress-bar" style="width: 0%"></div>
+                                    </div>
+                                    <p class="text-muted mt-2" id="analysisInfo"></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Probabilités</h6>
+                                    <div id="probabilitiesList" class="list-group"></div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Image Originale</h6>
+                                    <img id="originalImage" class="result-image" src="" alt="Original">
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>XAI Heatmap</h6>
+                                    <img id="xaiImage" class="result-image" src="" alt="XAI">
+                                </div>
+                            </div>
+
+                            <div class="mt-4 text-center">
+                                <h6>Dashboard XAI Complet</h6>
+                                <a id="dashboardLink" href="#" target="_blank" class="btn btn-success">
+                                    <i class="fas fa-external-link-alt me-2"></i>
+                                    Ouvrir le Dashboard Multi-techniques
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Analyses récentes -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Analyses Récentes</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_analyses %}
+                            {% for analysis in recent_analyses %}
+                                <div class="mb-2">
+                                    <a href="{{ analysis.url }}" target="_blank" class="text-decoration-none">
+                                        <i class="fas fa-file-image text-primary me-2"></i>
+                                        {{ analysis.filename }}
+                                    </a>
+                                    <small class="text-muted d-block">{{ analysis.time }}</small>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted text-center">Aucune analyse récente</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Classes -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Classes</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for class_name in classes %}
+                            <span class="badge bg-light text-dark mb-1" style="font-size: 0.9rem;">
+                                {{ class_name }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <h4 class="mt-3">Analyse XAI en cours...</h4>
+        <p class="text-center">Génération des 3 techniques d'explicabilité</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Afficher loading
+            document.getElementById('loading').style.display = 'flex';
+
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch('/api/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    displayResults(result);
+                } else {
+                    alert('Erreur: ' + result.error);
+                }
+            } catch (error) {
+                alert('Erreur de connexion: ' + error.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        });
+
+        function displayResults(data) {
+            // Afficher section résultats
+            document.getElementById('resultsSection').style.display = 'block';
+
+            // Mettre à jour les informations
+            document.getElementById('predictedClass').textContent = data.predicted_class;
+            document.getElementById('confidenceValue').textContent = data.confidence_percent;
+            document.getElementById('confidenceBar').style.width = data.confidence_percent;
+
+            document.getElementById('analysisInfo').innerHTML = `
+                Analyse #${data.analysis_id} • ${new Date(data.timestamp).toLocaleTimeString()}
+            `;
+
+            // Images
+            document.getElementById('originalImage').src = `data:image/png;base64,${data.original_image}`;
+            document.getElementById('xaiImage').src = `data:image/png;base64,${data.xai_integrated_gradients}`;
+
+            // Dashboard
+            document.getElementById('dashboardLink').href = data.dashboard_url;
+
+            // Probabilités
+            const probList = document.getElementById('probabilitiesList');
+            probList.innerHTML = '';
+
+            for (const [className, prob] of Object.entries(data.probabilities)) {
+                const item = document.createElement('div');
+                item.className = 'list-group-item d-flex justify-content-between';
+                item.innerHTML = `
+                    <span>${className}</span>
+                    <span class="badge bg-primary rounded-pill">${(prob * 100).toFixed(1)}%</span>
+                `;
+                probList.appendChild(item);
+            }
+
+            // Scroll vers résultats
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

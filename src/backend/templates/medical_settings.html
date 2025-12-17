@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paramètres - {{ app_name }}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-bg: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .settings-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .settings-header {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .settings-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            border-top: 4px solid var(--secondary-color);
+        }
+
+        .settings-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .form-control, .form-select {
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .form-check-input:checked {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .form-check-input:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
+        }
+
+        .btn-medical {
+            background: var(--secondary-color);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-medical:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-medical-success {
+            background: var(--accent-color);
+        }
+
+        .btn-medical-danger {
+            background: var(--danger-color);
+        }
+
+        .alert {
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .settings-tabs {
+            background: white;
+            border-radius: 15px;
+            padding: 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .nav-tabs {
+            border-bottom: 1px solid #dee2e6;
+            padding: 0 20px;
+            background: var(--light-bg);
+        }
+
+        .nav-tabs .nav-link {
+            padding: 15px 25px;
+            font-weight: 600;
+            color: #6c757d;
+            border: none;
+            border-bottom: 3px solid transparent;
+            border-radius: 0;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: var(--secondary-color);
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--secondary-color);
+            background: white;
+            border-bottom: 3px solid var(--secondary-color);
+        }
+
+        .tab-content {
+            padding: 30px;
+        }
+
+        .user-avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            margin: 0 auto 20px;
+        }
+
+        .danger-zone {
+            border: 2px solid var(--danger-color);
+            border-radius: 10px;
+            padding: 20px;
+            background: #fff5f5;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--secondary-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+
+        @media (max-width: 768px) {
+            .settings-container {
+                padding: 10px;
+            }
+
+            .settings-card, .settings-header {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <!-- Header -->
+        <div class="settings-header">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1" style="color: var(--primary-color);">
+                        <i class="fas fa-cogs me-2"></i> Paramètres
+                    </h2>
+                    <p class="text-muted mb-0">
+                        Personnalisez votre expérience sur la plateforme médicale
+                    </p>
+                </div>
+                <div>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i> Retour
+                    </a>
+                </div>
+            </div>
+
+            <!-- User Info -->
+            <div class="text-center mb-4">
+                <div class="user-avatar">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h4>{{ user.full_name or 'Dr. Utilisateur' }}</h4>
+                <p class="text-muted mb-1">{{ user.email }}</p>
+                <p class="text-muted">{{ user.institution }} • {{ user.specialty }}</p>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="settings-tabs">
+            <ul class="nav nav-tabs" id="settingsTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="profile-tab" data-bs-toggle="tab"
+                            data-bs-target="#profile" type="button">
+                        <i class="fas fa-user-circle me-2"></i> Profil
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="xai-tab" data-bs-toggle="tab"
+                            data-bs-target="#xai" type="button">
+                        <i class="fas fa-sliders-h me-2"></i> XAI
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="notifications-tab" data-bs-toggle="tab"
+                            data-bs-target="#notifications" type="button">
+                        <i class="fas fa-bell me-2"></i> Notifications
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="interface-tab" data-bs-toggle="tab"
+                            data-bs-target="#interface" type="button">
+                        <i class="fas fa-palette me-2"></i> Interface
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="security-tab" data-bs-toggle="tab"
+                            data-bs-target="#security" type="button">
+                        <i class="fas fa-shield-alt me-2"></i> Sécurité
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="settingsTabsContent">
+                <!-- Profile Tab -->
+                <div class="tab-pane fade show active" id="profile" role="tabpanel">
+                    <form id="profileForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="fullName" class="form-label">Nom complet *</label>
+                                <input type="text" class="form-control" id="fullName"
+                                       value="{{ user.full_name }}" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email professionnel *</label>
+                                <input type="email" class="form-control" id="email"
+                                       value="{{ user.email }}" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="institution" class="form-label">Établissement *</label>
+                                <input type="text" class="form-control" id="institution"
+                                       value="{{ user.institution }}" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="department" class="form-label">Service/Département *</label>
+                                <input type="text" class="form-control" id="department"
+                                       value="{{ user.department }}" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="specialty" class="form-label">Spécialité *</label>
+                                <select class="form-select" id="specialty" required>
+                                    <option value="">Sélectionnez...</option>
+                                    <option value="Dermatologie" {% if user.specialty == 'Dermatologie' %}selected{% endif %}>
+                                        Dermatologie
+                                    </option>
+                                    <option value="Médecine Générale" {% if user.specialty == 'Médecine Générale' %}selected{% endif %}>
+                                        Médecine Générale
+                                    </option>
+                                    <option value="Oncologie" {% if user.specialty == 'Oncologie' %}selected{% endif %}>
+                                        Oncologie
+                                    </option>
+                                    <option value="Chirurgie" {% if user.specialty == 'Chirurgie' %}selected{% endif %}>
+                                        Chirurgie
+                                    </option>
+                                    <option value="Autre" {% if user.specialty == 'Autre' %}selected{% endif %}>
+                                        Autre
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">Téléphone</label>
+                                <input type="tel" class="form-control" id="phone"
+                                       value="{{ user.phone }}">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="rpps" class="form-label">N° RPPS</label>
+                                <input type="text" class="form-control" id="rpps"
+                                       value="{{ user.rpps or '' }}">
+                            </div>
+
+                            <div class="col-12">
+                                <label for="bio" class="form-label">Biographie professionnelle</label>
+                                <textarea class="form-control" id="bio" rows="3"
+                                          placeholder="Votre parcours, spécialités, centres d'intérêt..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn-medical">
+                                <i class="fas fa-save me-2"></i> Enregistrer les modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- XAI Settings Tab -->
+                <div class="tab-pane fade" id="xai" role="tabpanel">
+                    <form id="xaiForm">
+                        <h5 class="mb-3">Paramètres d'explicabilité</h5>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="occlusionPatch" class="form-label">Taille patch (occlusion)</label>
+                                <input type="range" class="form-range" id="occlusionPatch"
+                                       min="16" max="96" value="{{ user_settings.get('xai_params', {}).get('occlusion', {}).get('patch_size', 48) }}">
+                                <div class="form-text">
+                                    Valeur: <span id="patchValue">48</span> pixels
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="occlusionStride" class="form-label">Pas (stride)</label>
+                                <input type="range" class="form-range" id="occlusionStride"
+                                       min="8" max="48" value="{{ user_settings.get('xai_params', {}).get('occlusion', {}).get('stride', 24) }}">
+                                <div class="form-text">
+                                    Valeur: <span id="strideValue">24</span> pixels
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="intgradSteps" class="form-label">Nombre d'étapes (IntGrad)</label>
+                                <input type="range" class="form-range" id="intgradSteps"
+                                       min="10" max="50" value="{{ user_settings.get('xai_params', {}).get('intgrad', {}).get('steps', 30) }}">
+                                <div class="form-text">
+                                    Valeur: <span id="stepsValue">30</span> étapes
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="baselineType" class="form-label">Type de baseline</label>
+                                <select class="form-select" id="baselineType">
+                                    <option value="black" {% if user_settings.get('xai_params', {}).get('intgrad', {}).get('baseline', 'black') == 'black' %}selected{% endif %}>
+                                        Noir
+                                    </option>
+                                    <option value="white" {% if user_settings.get('xai_params', {}).get('intgrad', {}).get('baseline', 'black') == 'white' %}selected{% endif %}>
+                                        Blanc
+                                    </option>
+                                    <option value="mean" {% if user_settings.get('xai_params', {}).get('intgrad', {}).get('baseline', 'black') == 'mean' %}selected{% endif %}>
+                                        Moyenne
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="attentionSigma" class="form-label">Sigma (attention)</label>
+                                <input type="range" class="form-range" id="attentionSigma"
+                                       min="1" max="20" value="{{ user_settings.get('xai_params', {}).get('attention', {}).get('blur_sigma', 10) }}">
+                                <div class="form-text">
+                                    Valeur: <span id="sigmaValue">10</span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="heatmapAlpha" class="form-label">Transparence heatmap</label>
+                                <input type="range" class="form-range" id="heatmapAlpha"
+                                       min="10" max="90" value="{{ user_settings.get('heatmap_alpha', 60) }}">
+                                <div class="form-text">
+                                    Valeur: <span id="alphaValue">60%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <h5 class="mb-3">Options d'analyse</h5>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="enable3D"
+                                               {% if user_settings.get('enable_3d', true) %}checked{% endif %}>
+                                        <label class="form-check-label" for="enable3D">
+                                            Activer les visualisations 3D
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="autoGeneratePDF"
+                                               {% if user_settings.get('auto_generate_pdf', true) %}checked{% endif %}>
+                                        <label class="form-check-label" for="autoGeneratePDF">
+                                            Générer automatiquement un PDF
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="showConfidenceScores"
+                                               {% if user_settings.get('show_confidence_scores', true) %}checked{% endif %}>
+                                        <label class="form-check-label" for="showConfidenceScores">
+                                            Afficher les scores de confiance
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="saveToHistory"
+                                               {% if user_settings.get('save_to_history', true) %}checked{% endif %}>
+                                        <label class="form-check-label" for="saveToHistory">
+                                            Sauvegarder dans l'historique
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn-medical">
+                                <i class="fas fa-save me-2"></i> Enregistrer les paramètres XAI
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary ms-2" onclick="resetXAI()">
+                                <i class="fas fa-redo me-2"></i> Réinitialiser
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Notifications Tab -->
+                <div class="tab-pane fade" id="notifications" role="tabpanel">
+                    <form id="notificationsForm">
+                        <h5 class="mb-3">Préférences de notifications</h5>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="notifyAnalysisComplete" checked>
+                                    <label class="form-check-label" for="notifyAnalysisComplete">
+                                        Analyse terminée
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="notifyPDFReady" checked>
+                                    <label class="form-check-label" for="notifyPDFReady">
+                                        Rapport PDF généré
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="notifySystemUpdates">
+                                    <label class="form-check-label" for="notifySystemUpdates">
+                                        Mises à jour système
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="notifyGuidelines" checked>
+                                    <label class="form-check-label" for="notifyGuidelines">
+                                        Nouvelles guidelines
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="emailNotifications">
+                                    <label class="form-check-label" for="emailNotifications">
+                                        Notifications par email
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="pushNotifications">
+                                    <label class="form-check-label" for="pushNotifications">
+                                        Notifications push
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <h5 class="mb-3">Fréquence des emails</h5>
+                            <select class="form-select" id="emailFrequency">
+                                <option value="immediate">Immédiatement</option>
+                                <option value="daily" selected>Résumé quotidien</option>
+                                <option value="weekly">Résumé hebdomadaire</option>
+                                <option value="never">Jamais</option>
+                            </select>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn-medical">
+                                <i class="fas fa-save me-2"></i> Enregistrer les préférences
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Interface Tab -->
+                <div class="tab-pane fade" id="interface" role="tabpanel">
+                    <form id="interfaceForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="theme" class="form-label">Thème</label>
+                                <select class="form-select" id="theme">
+                                    <option value="light" selected>Clair</option>
+                                    <option value="dark">Sombre</option>
+                                    <option value="auto">Auto (système)</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="language" class="form-label">Langue</label>
+                                <select class="form-select" id="language">
+                                    <option value="fr" selected>Français</option>
+                                    <option value="en">English</option>
+                                    <option value="es">Español</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="density" class="form-label">Densité d'affichage</label>
+                                <select class="form-select" id="density">
+                                    <option value="compact">Compact</option>
+                                    <option value="normal" selected>Normal</option>
+                                    <option value="comfortable">Confortable</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="fontSize" class="form-label">Taille de police</label>
+                                <input type="range" class="form-range" id="fontSize" min="12" max="18" value="14">
+                                <div class="form-text">
+                                    Taille: <span id="fontSizeValue">14</span>px
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <h5 class="mb-3">Préférences d'affichage</h5>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="animations" checked>
+                                        <label class="form-check-label" for="animations">
+                                            Animations
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="tooltips" checked>
+                                        <label class="form-check-label" for="tooltips">
+                                            Info-bulles
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="sidebarCollapsed">
+                                        <label class="form-check-label" for="sidebarCollapsed">
+                                            Barre latérale réduite
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="autoRefresh" checked>
+                                        <label class="form-check-label" for="autoRefresh">
+                                            Actualisation automatique
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn-medical">
+                                <i class="fas fa-save me-2"></i> Enregistrer les préférences
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary ms-2" onclick="resetInterface()">
+                                <i class="fas fa-redo me-2"></i> Réinitialiser
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Security Tab -->
+                <div class="tab-pane fade" id="security" role="tabpanel">
+                    <!-- Change Password -->
+                    <div class="mb-5">
+                        <h5 class="mb-3">Changer le mot de passe</h5>
+                        <form id="passwordForm">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="currentPassword" class="form-label">Mot de passe actuel</label>
+                                    <input type="password" class="form-control" id="currentPassword" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="newPassword" class="form-label">Nouveau mot de passe</label>
+                                    <input type="password" class="form-control" id="newPassword" required>
+                                    <div class="form-text">
+                                        Minimum 8 caractères, avec majuscule, chiffre et caractère spécial
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="confirmPassword" class="form-label">Confirmer le nouveau mot de passe</label>
+                                    <input type="password" class="form-control" id="confirmPassword" required>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn-medical">
+                                    <i class="fas fa-key me-2"></i> Changer le mot de passe
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Security Settings -->
+                    <div class="mb-5">
+                        <h5 class="mb-3">Paramètres de sécurité</h5>
+                        <form id="securityForm">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="twoFactorAuth">
+                                        <label class="form-check-label" for="twoFactorAuth">
+                                            Authentification à deux facteurs
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="sessionTimeout" checked>
+                                        <label class="form-check-label" for="sessionTimeout">
+                                            Déconnexion automatique
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="sessionDuration" class="form-label">Durée de session (heures)</label>
+                                    <select class="form-select" id="sessionDuration">
+                                        <option value="1">1 heure</option>
+                                        <option value="4">4 heures</option>
+                                        <option value="8">8 heures</option>
+                                        <option value="24" selected>24 heures</option>
+                                        <option value="168">7 jours</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="loginHistory" class="form-label">Historique des connexions</label>
+                                    <select class="form-select" id="loginHistory">
+                                        <option value="30">30 jours</option>
+                                        <option value="90" selected>90 jours</option>
+                                        <option value="180">6 mois</option>
+                                        <option value="365">1 an</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn-medical">
+                                    <i class="fas fa-shield-alt me-2"></i> Enregistrer les paramètres
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Danger Zone -->
+                    <div class="danger-zone">
+                        <h5 class="text-danger mb-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i> Zone dangereuse
+                        </h5>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-outline-danger w-100"
+                                        data-bs-toggle="modal" data-bs-target="#deleteHistoryModal">
+                                    <i class="fas fa-trash me-2"></i> Supprimer l'historique
+                                </button>
+                            </div>
+
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-outline-danger w-100"
+                                        data-bs-toggle="modal" data-bs-target="#exportDataModal">
+                                    <i class="fas fa-download me-2"></i> Exporter mes données
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <button type="button" class="btn-medical btn-medical-danger w-100"
+                                    data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                                <i class="fas fa-user-slash me-2"></i> Supprimer mon compte
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Messages -->
+        <div id="errorAlert" class="alert alert-danger d-none" role="alert"></div>
+        <div id="successAlert" class="alert alert-success d-none" role="alert"></div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal fade" id="deleteHistoryModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">
+                        <i class="fas fa-trash me-2"></i> Supprimer l'historique
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer tout votre historique d'analyses ?</p>
+                    <p class="text-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Cette action est irréversible. Tous vos rapports et données seront perdus.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteHistory()">
+                        <i class="fas fa-trash me-2"></i> Supprimer définitivement
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="exportDataModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-download me-2"></i> Exporter mes données
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Sélectionnez les données à exporter :</p>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="exportProfile" checked>
+                        <label class="form-check-label" for="exportProfile">
+                            Profil utilisateur
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="exportAnalyses" checked>
+                        <label class="form-check-label" for="exportAnalyses">
+                            Historique des analyses
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="exportReports">
+                        <label class="form-check-label" for="exportReports">
+                            Rapports PDF
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="exportSettings">
+                        <label class="form-check-label" for="exportSettings">
+                            Paramètres
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn-medical" onclick="exportData()">
+                        <i class="fas fa-download me-2"></i> Exporter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">
+                        <i class="fas fa-user-slash me-2"></i> Supprimer mon compte
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-danger">
+                        <strong>Attention : Cette action est définitive !</strong>
+                    </p>
+                    <p>Toutes vos données seront supprimées :</p>
+                    <ul>
+                        <li>Profil utilisateur</li>
+                        <li>Historique des analyses</li>
+                        <li>Rapports PDF</li>
+                        <li>Paramètres et préférences</li>
+                    </ul>
+                    <p>Pour confirmer, veuillez taper <strong>SUPPRIMER</strong> ci-dessous :</p>
+                    <input type="text" class="form-control" id="confirmDelete" placeholder="SUPPRIMER">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-danger" id="deleteAccountBtn" disabled>
+                        <i class="fas fa-user-slash me-2"></i> Supprimer mon compte
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize range value displays
+            initRangeInputs();
+
+            // Initialize form submissions
+            initFormSubmissions();
+
+            // Initialize delete confirmation
+            initDeleteConfirmation();
+        });
+
+        function initRangeInputs() {
+            // Update range value displays
+            const ranges = {
+                'occlusionPatch': 'patchValue',
+                'occlusionStride': 'strideValue',
+                'intgradSteps': 'stepsValue',
+                'attentionSigma': 'sigmaValue',
+                'heatmapAlpha': 'alphaValue',
+                'fontSize': 'fontSizeValue'
+            };
+
+            for (const [inputId, spanId] of Object.entries(ranges)) {
+                const input = document.getElementById(inputId);
+                const span = document.getElementById(spanId);
+
+                if (input && span) {
+                    // Initial value
+                    if (inputId === 'heatmapAlpha') {
+                        span.textContent = input.value + '%';
+                    } else if (inputId === 'fontSize') {
+                        span.textContent = input.value + 'px';
+                    } else {
+                        span.textContent = input.value;
+                    }
+
+                    // Update on change
+                    input.addEventListener('input', function() {
+                        if (inputId === 'heatmapAlpha') {
+                            span.textContent = this.value + '%';
+                        } else if (inputId === 'fontSize') {
+                            span.textContent = this.value + 'px';
+                        } else {
+                            span.textContent = this.value;
+                        }
+                    });
+                }
+            }
+        }
+
+        function initFormSubmissions() {
+            // Profile form
+            document.getElementById('profileForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await saveSettings('profile', collectFormData(this));
+            });
+
+            // XAI form
+            document.getElementById('xaiForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const xaiData = {
+                    xai_params: {
+                        occlusion: {
+                            patch_size: parseInt(document.getElementById('occlusionPatch').value),
+                            stride: parseInt(document.getElementById('occlusionStride').value)
+                        },
+                        intgrad: {
+                            steps: parseInt(document.getElementById('intgradSteps').value),
+                            baseline: document.getElementById('baselineType').value
+                        },
+                        attention: {
+                            blur_sigma: parseInt(document.getElementById('attentionSigma').value),
+                            normalize: true
+                        }
+                    },
+                    heatmap_alpha: parseInt(document.getElementById('heatmapAlpha').value),
+                    enable_3d: document.getElementById('enable3D').checked,
+                    auto_generate_pdf: document.getElementById('autoGeneratePDF').checked,
+                    show_confidence_scores: document.getElementById('showConfidenceScores').checked,
+                    save_to_history: document.getElementById('saveToHistory').checked
+                };
+
+                await saveSettings('xai', xaiData);
+            });
+
+            // Notifications form
+            document.getElementById('notificationsForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await saveSettings('notifications', collectFormData(this));
+            });
+
+            // Interface form
+            document.getElementById('interfaceForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await saveSettings('interface', collectFormData(this));
+            });
+
+            // Password form
+            document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                if (newPassword !== confirmPassword) {
+                    showError('Les mots de passe ne correspondent pas');
+                    return;
+                }
+
+                if (newPassword.length < 8) {
+                    showError('Le mot de passe doit contenir au moins 8 caractères');
+                    return;
+                }
+
+                // In a real application, this would make an API call
+                showSuccess('Mot de passe changé avec succès !');
+
+                // Clear form
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+            });
+
+            // Security form
+            document.getElementById('securityForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await saveSettings('security', collectFormData(this));
+            });
+        }
+
+        function collectFormData(form) {
+            const formData = {};
+            const inputs = form.querySelectorAll('input, select, textarea');
+
+            inputs.forEach(input => {
+                if (input.type === 'checkbox') {
+                    formData[input.id] = input.checked;
+                } else if (input.type === 'radio') {
+                    if (input.checked) {
+                        formData[input.name] = input.value;
+                    }
+                } else {
+                    formData[input.id] = input.value;
+                }
+            });
+
+            return formData;
+        }
+
+        async function saveSettings(section, data) {
+            const submitBtn = event.submitter;
+            const originalText = submitBtn.innerHTML;
+
+            // Show loading
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Enregistrement...';
+            submitBtn.disabled = true;
+
+            try {
+                // In a real application, this would make an API call
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // Show success
+                showSuccess('Paramètres enregistrés avec succès !');
+
+                // Reset button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+
+            } catch (error) {
+                showError('Erreur lors de l\'enregistrement');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        function initDeleteConfirmation() {
+            const confirmInput = document.getElementById('confirmDelete');
+            const deleteBtn = document.getElementById('deleteAccountBtn');
+
+            confirmInput.addEventListener('input', function() {
+                deleteBtn.disabled = this.value !== 'SUPPRIMER';
+            });
+        }
+
+        function resetXAI() {
+            document.getElementById('occlusionPatch').value = 48;
+            document.getElementById('occlusionStride').value = 24;
+            document.getElementById('intgradSteps').value = 30;
+            document.getElementById('baselineType').value = 'black';
+            document.getElementById('attentionSigma').value = 10;
+            document.getElementById('heatmapAlpha').value = 60;
+            document.getElementById('enable3D').checked = true;
+            document.getElementById('autoGeneratePDF').checked = true;
+            document.getElementById('showConfidenceScores').checked = true;
+            document.getElementById('saveToHistory').checked = true;
+
+            // Update displays
+            document.getElementById('patchValue').textContent = '48';
+            document.getElementById('strideValue').textContent = '24';
+            document.getElementById('stepsValue').textContent = '30';
+            document.getElementById('sigmaValue').textContent = '10';
+            document.getElementById('alphaValue').textContent = '60%';
+
+            showSuccess('Paramètres XAI réinitialisés');
+        }
+
+        function resetInterface() {
+            document.getElementById('theme').value = 'light';
+            document.getElementById('language').value = 'fr';
+            document.getElementById('density').value = 'normal';
+            document.getElementById('fontSize').value = '14';
+            document.getElementById('animations').checked = true;
+            document.getElementById('tooltips').checked = true;
+            document.getElementById('sidebarCollapsed').checked = false;
+            document.getElementById('autoRefresh').checked = true;
+
+            // Update display
+            document.getElementById('fontSizeValue').textContent = '14px';
+
+            showSuccess('Préférences d\'interface réinitialisées');
+        }
+
+        function deleteHistory() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteHistoryModal'));
+            modal.hide();
+
+            showSuccess('Historique supprimé avec succès');
+        }
+
+        function exportData() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('exportDataModal'));
+            modal.hide();
+
+            showSuccess('Export en cours... Votre fichier sera téléchargé automatiquement');
+
+            // Simulate download
+            setTimeout(() => {
+                const blob = new Blob(['Données exportées'], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'donnees_utilisateur.json';
+                a.click();
+                URL.revokeObjectURL(url);
+            }, 1000);
+        }
+
+        function showError(message) {
+            const alert = document.getElementById('errorAlert');
+            alert.textContent = message;
+            alert.classList.remove('d-none');
+
+            setTimeout(() => {
+                alert.classList.add('d-none');
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const alert = document.getElementById('successAlert');
+            alert.textContent = message;
+            alert.classList.remove('d-none');
+
+            setTimeout(() => {
+                alert.classList.add('d-none');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

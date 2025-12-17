@@ -38,3 +38,7 @@ streamlit==1.33.0
 requests==2.32.3       # Pour la communication HTTP (Streamlit <-> FastAPI)
 pickle==4.0            # Utilisé pour le chargement du générateur ou des objets sérialisés
 
+# 6.XAI
+shap
+lime
+

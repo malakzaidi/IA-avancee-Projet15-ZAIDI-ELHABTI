@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_name }} - Plateforme Médicale XAI</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Updated color scheme to dermatology theme with skin tones */
+        :root {
+            --primary-color: #e8927c;
+            --secondary-color: #f4a89a;
+            --accent-color: #5eb3d4;
+            --success-color: #6ec5a8;
+            --warning-color: #f0b67f;
+            --danger-color: #d9756e;
+            --skin-light: #fdf4ef;
+            --skin-medium: #f7d5c4;
+            --skin-peach: #ffcdb2;
+            --medical-blue: #4a9db5;
+            --medical-mint: #88d4ab;
+            --dark-text: #2d3436;
+            --light-text: #636e72;
+            --cream-bg: #fff9f5;
+            --card-bg: #ffffff;
+            --shadow-sm: 0 2px 15px rgba(232, 146, 124, 0.08);
+            --shadow-md: 0 8px 30px rgba(232, 146, 124, 0.12);
+            --shadow-lg: 0 20px 60px rgba(232, 146, 124, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--skin-light) 0%, #fff5f0 100%);
+            color: var(--dark-text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Dermatology pattern background */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 20% 50%, rgba(232, 146, 124, 0.03) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(94, 179, 212, 0.03) 0%, transparent 50%);
+        }
+
+        .animated-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle, rgba(232, 146, 124, 0.08) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: backgroundMove 120s linear infinite;
+        }
+
+        @keyframes backgroundMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(40px, 40px); }
+        }
+
+        /* Medical navbar with skin tone accent */
+        .medical-navbar {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 30px rgba(232, 146, 124, 0.1);
+            padding: 1.2rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid var(--skin-peach);
+        }
+
+        .medical-navbar.scrolled {
+            padding: 0.8rem 0;
+            box-shadow: 0 8px 40px rgba(232, 146, 124, 0.15);
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Dermatology icon with gradient */
+        .brand-icon {
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(232, 146, 124, 0.3);
+        }
+
+        .brand-icon i {
+            color: white;
+            font-size: 1.6rem;
+        }
+
+        .brand-text h1 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            font-size: 1.6rem;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-text .tagline {
+            color: var(--light-text);
+            font-size: 0.8rem;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        /* Hero section with dermatology medical imagery */
+        .hero-section {
+            position: relative;
+            background: linear-gradient(135deg, #2d3436 0%, #34495e 50%, #455a64 100%);
+            color: white;
+            padding: 120px 0 100px;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 30% 20%, rgba(232, 146, 124, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(94, 179, 212, 0.15) 0%, transparent 50%);
+        }
+
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(to bottom, transparent, var(--skin-light));
+        }
+
+        .hero-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, var(--skin-peach) 0%, transparent 70%);
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: float 20s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            50% { transform: translateY(-50px) translateX(30px); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Dermatology badge with skin tone */
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(232, 146, 124, 0.15);
+            border: 1px solid rgba(232, 146, 124, 0.3);
+            padding: 10px 24px;
+            border-radius: 50px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .hero-badge i {
+            color: var(--skin-peach);
+        }
+
+        .hero-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+            letter-spacing: -2px;
+        }
+
+        /* Skin-tone gradient for key words */
+        .hero-title .gradient-text {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.9;
+            max-width: 750px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.7;
+            font-weight: 400;
+        }
+
+        /* Dermatology-themed feature cards */
+        .feature-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--skin-peach);
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        /* Skin-tone icon backgrounds */
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(232, 146, 124, 0.1) 0%, rgba(94, 179, 212, 0.1) 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            transition: all 0.4s ease;
+            border: 2px solid rgba(232, 146, 124, 0.2);
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(5deg);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            border-color: transparent;
+        }
+
+        .feature-icon i {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: all 0.4s ease;
+        }
+
+        .feature-card:hover .feature-icon i {
+            -webkit-text-fill-color: white;
+        }
+
+        .feature-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            color: var(--dark-text);
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            letter-spacing: -0.5px;
+        }
+
+        .feature-desc {
+            color: var(--light-text);
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        /* Stats section with dermatology colors */
+        .stats-section {
+            background: white;
+            padding: 100px 0;
+            position: relative;
+        }
+
+        .stats-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(232, 146, 124, 0.02) 0%, rgba(94, 179, 212, 0.02) 100%);
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 30px rgba(232, 146, 124, 0.3);
+        }
+
+        .stat-icon i {
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .stat-number {
+            font-family: 'Poppins', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: var(--dark-text);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* Dermatology-themed buttons */
+        .btn-medical {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 8px 20px rgba(232, 146, 124, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-medical::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-medical:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(232, 146, 124, 0.4);
+            color: white;
+        }
+
+        .btn-medical:hover::before {
+            left: 100%;
+        }
+
+        .btn-medical-success {
+            background: linear-gradient(135deg, var(--success-color) 0%, var(--medical-mint) 100%);
+            box-shadow: 0 8px 20px rgba(110, 197, 168, 0.3);
+        }
+
+        .btn-medical-success:hover {
+            box-shadow: 0 12px 30px rgba(110, 197, 168, 0.4);
+        }
+
+        .btn-outline-custom {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-outline-custom:hover {
+            background: white;
+            color: var(--primary-color);
+            border-color: white;
+            transform: translateY(-2px);
+        }
+
+        /* CTA section with dermatology gradient */
+        .cta-section {
+            background: linear-gradient(135deg, #2d3436 0%, #455a64 100%);
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(232, 146, 124, 0.15) 0%, transparent 70%);
+        }
+
+        /* Footer with skin tone accents */
+        .footer {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d3436 100%);
+            color: white;
+            padding: 80px 0 30px;
+            position: relative;
+            border-top: 3px solid var(--primary-color);
+        }
+
+        .footer-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            margin-bottom: 25px;
+            font-size: 1.2rem;
+            letter-spacing: -0.5px;
+            color: var(--skin-peach);
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--skin-peach);
+            padding-left: 8px;
+        }
+
+        .footer-links a i {
+            margin-right: 8px;
+            color: var(--primary-color);
+        }
+
+        .copyright {
+            border-top: 1px solid rgba(232, 146, 124, 0.2);
+            padding-top: 30px;
+            margin-top: 50px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Section styling with dermatology theme */
+        .section-header {
+            text-align: center;
+            margin-bottom: 70px;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(232, 146, 124, 0.1) 0%, rgba(94, 179, 212, 0.1) 100%);
+            border: 2px solid rgba(232, 146, 124, 0.3);
+            padding: 10px 24px;
+            border-radius: 50px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--dark-text);
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--light-text);
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .stat-number {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Scroll Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg medical-navbar">
+        <div class="container">
+            <div class="brand-section">
+                <!-- Changed icon to microscope for dermatology -->
+                <div class="brand-icon">
+                    <i class="fas fa-microscope"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>{{ app_name }}</h1>
+                    <p class="tagline">Diagnostic Dermatologique par IA Explicable</p>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard') }}" class="btn-medical btn-medical-success">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </a>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="btn-medical">
+                    <i class="fas fa-sign-in-alt"></i> Connexion
+                </a>
+                <a href="{{ url_for('signup') }}" class="btn-medical btn-medical-success">
+                    <i class="fas fa-user-plus"></i> Inscription
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-particles">
+            <div class="particle" style="top: 20%; left: 10%; animation-delay: 0s;"></div>
+            <div class="particle" style="top: 40%; left: 80%; animation-delay: 2s;"></div>
+            <div class="particle" style="top: 60%; left: 30%; animation-delay: 4s;"></div>
+            <div class="particle" style="top: 80%; left: 70%; animation-delay: 6s;"></div>
+            <div class="particle" style="top: 30%; left: 50%; animation-delay: 3s;"></div>
+        </div>
+        <div class="container hero-content">
+            <!-- Updated hero badge text for dermatology focus -->
+            <div class="hero-badge">
+                <i class="fas fa-heartbeat"></i>
+                <span>Plateforme XAI pour l'Analyse des Lésions Cutanées</span>
+            </div>
+            <h1 class="hero-title">
+                Diagnostic <span class="gradient-text">Dermatologique</span><br>
+                Assisté par Intelligence Artificielle
+            </h1>
+            <p class="hero-subtitle">
+                Révolutionnez votre pratique dermatologique avec notre IA explicable de pointe.
+                Détection automatique de 8 pathologies cutanées, analyse XAI transparente,
+                et génération instantanée de rapports médicaux professionnels.
+            </p>
+            <div class="mt-5 d-flex gap-3 justify-content-center flex-wrap">
+                {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('signup') }}" class="btn-medical btn-medical-success">
+                    <i class="fas fa-rocket"></i> Commencer Gratuitement
+                </a>
+                <a href="#features" class="btn-outline-custom">
+                    <i class="fas fa-play-circle"></i> Découvrir la Plateforme
+                </a>
+                {% else %}
+                <a href="{{ url_for('dashboard') }}" class="btn-medical btn-medical-success">
+                    <i class="fas fa-plus-circle"></i> Nouvelle Analyse
+                </a>
+                <a href="{{ url_for('analysis_history') }}" class="btn-outline-custom">
+                    <i class="fas fa-history"></i> Historique Complet
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 col-6 mb-4">
+                    <div class="stat-card fade-in">
+                        <!-- Updated stat icons for dermatology context -->
+                        <div class="stat-icon">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <div class="stat-number">{{ stats.total_analyses|default(0) }}</div>
+                        <div class="stat-label">Lésions Analysées</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-4">
+                    <div class="stat-card fade-in">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-number">{{ stats.successful_analyses|default(0) }}</div>
+                        <div class="stat-label">Diagnostics Confirmés</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-4">
+                    <div class="stat-card fade-in">
+                        <div class="stat-icon">
+                            <i class="fas fa-disease"></i>
+                        </div>
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">Pathologies Cutanées</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-4">
+                    <div class="stat-card fade-in">
+                        <div class="stat-icon">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        <div class="stat-number">{{ stats.active_users|default(1) }}</div>
+                        <div class="stat-label">Dermatologues Actifs</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5" style="padding: 100px 0 !important;">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-badge">
+                    <i class="fas fa-star"></i>
+                    <span>Fonctionnalités Avancées</span>
+                </div>
+                <!-- Updated section titles for dermatology specificity -->
+                <h2 class="section-title">Technologie IA pour la Dermatologie</h2>
+                <p class="section-subtitle">
+                    Solution complète d'analyse dermatologique combinant deep learning,
+                    explicabilité transparente et outils cliniques professionnels
+                </p>
+            </div>
+
+            <div class="row g-4">
+                <!-- Feature 1 -->
+                <div class="col-md-4">
+                    <div class="feature-card fade-in">
+                        <div class="feature-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3 class="feature-title">IA Explicable Multi-Méthodes</h3>
+                        <p class="feature-desc">
+                            Techniques XAI avancées (occlusion, Grad-CAM, gradients intégrés) pour comprendre
+                            chaque prédiction et garantir la transparence du diagnostic automatisé.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="col-md-4">
+                    <div class="feature-card fade-in">
+                        <!-- Added skin icon for dermatology -->
+                        <div class="feature-icon">
+                            <i class="fas fa-disease"></i>
+                        </div>
+                        <h3 class="feature-title">Détection de Lésions Cutanées</h3>
+                        <p class="feature-desc">
+                            Identification automatique de 8 pathologies dermatologiques majeures :
+                            mélanome, carcinome basocellulaire, kératose actinique et plus encore.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="col-md-4">
+                    <div class="feature-card fade-in">
+                        <div class="feature-icon">
+                            <i class="fas fa-file-medical"></i>
+                        </div>
+                        <h3 class="feature-title">Rapports Médicaux PDF</h3>
+                        <p class="feature-desc">
+                            Génération automatique de rapports dermatologiques complets avec visualisations XAI,
+                            recommandations cliniques et protocoles thérapeutiques.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="col-md-4">
+                    <div class="feature-card fade-in">
+                        <div class="feature-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <h3 class="feature-title">Historique & Suivi Patient</h3>
+                        <p class="feature-desc">
+                            Archivage complet avec suivi longitudinal des lésions, notes cliniques,
+                            recherche avancée et évolution temporelle des pathologies cutanées.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="col-md-4">
+                    <div class="feature-card fade-in">
+                        <div class="feature-icon">
+                            <i class="fas fa-book-medical"></i>
+                        </div>
+                        <h3 class="feature-title">Guidelines Dermatologiques</h3>
+                        <p class="feature-desc">
+                            Accès instantané aux protocoles cliniques par pathologie, critères diagnostiques
+                            ABCDE, facteurs de risque et recommandations thérapeutiques.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="col-md-4">
+                    <div class="feature-card fade-in">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="feature-title">Analytics & Dashboard</h3>
+                        <p class="feature-desc">
+                            Visualisations interactives, statistiques cliniques en temps réel,
+                            métriques de performance et insights pour optimiser votre pratique.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Added dedicated pathologies section for dermatology -->
+    <!-- Pathologies Section -->
+    <section class="py-5" style="background: white; padding: 100px 0 !important;">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-badge">
+                    <i class="fas fa-microscope"></i>
+                    <span>Pathologies Dermatologiques</span>
+                </div>
+                <h2 class="section-title">8 Pathologies Cutanées Détectées</h2>
+                <p class="section-subtitle">
+                    Notre réseau de neurones profond identifie avec précision les principales
+                    lésions dermatologiques grâce à un entraînement sur des milliers d'images certifiées
+                </p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-3 col-sm-6">
+                    <div class="feature-card fade-in text-center">
+                        <div style="font-size: 2.5rem; margin-bottom: 15px;">🔴</div>
+                        <h4 style="font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--dark-text); margin-bottom: 10px;">Mélanome Malin</h4>
+                        <p style="color: var(--light-text); font-size: 0.9rem;">Cancer cutané agressif</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="feature-card fade-in text-center">
+                        <div style="font-size: 2.5rem; margin-bottom: 15px;">🟠</div>
+                        <h4 style="font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--dark-text); margin-bottom: 10px;">Carcinome Basocellulaire</h4>
+                        <p style="color: var(--light-text); font-size: 0.9rem;">Cancer non-mélanome</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="feature-card fade-in text-center">
+                        <div style="font-size: 2.5rem; margin-bottom: 15px;">🟡</div>
+                        <h4 style="font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--dark-text); margin-bottom: 10px;">Kératose Actinique</h4>
+                        <p style="color: var(--light-text); font-size: 0.9rem;">Lésion pré-cancéreuse</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="feature-card fade-in text-center">
+                        <div style="font-size: 2.5rem; margin-bottom: 15px;">🟢</div>
+                        <h4 style="font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--dark-text); margin-bottom: 10px;">Dermatite Atopique</h4>
+                        <p style="color: var(--light-text); font-size: 0.9rem;">Eczéma chronique</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="feature-card fade-in text-center">
+                        <div style="font-size: 2.5rem; margin-bottom: 15px;">🔵</div>
+                        <h4 style="font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--dark-text); margin-bottom: 10px;">Psoriasis</h4>
+                        <p style="color: var(--light-text); font-size: 0.9rem;">Maladie inflammatoire</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="feature-card fade-in text-center">
+                        <div style="font-size: 2.5rem; margin-bottom: 15px;">🟣</div>
+                        <h4 style="font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--dark-text); margin-bottom: 10px;">Eczéma</h4>
+                        <p style="color: var(--light-text); font-size: 0.9rem;">Inflammation cutanée</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="feature-card fade-in text-center">
+                        <div style="font-size: 2.5rem; margin-bottom: 15px;">🟤</div>
+                        <h4 style="font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--dark-text); margin-bottom: 10px;">Nævi Bénins</h4>
+                        <p style="color: var(--light-text); font-size: 0.9rem;">Grains de beauté</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="feature-card fade-in text-center">
+                        <div style="font-size: 2.5rem; margin-bottom: 15px;">⚪</div>
+                        <h4 style="font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--dark-text); margin-bottom: 10px;">Lésions Vasculaires</h4>
+                        <p style="color: var(--light-text); font-size: 0.9rem;">Angiomes et hémangiomes</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Added XAI methods section for transparency -->
+            <div class="row mt-5 pt-5">
+                <div class="col-md-6 mb-4">
+                    <div class="feature-card fade-in" style="height: auto;">
+                        <h4 style="font-family: 'Poppins', sans-serif; font-weight: 700; margin-bottom: 25px; color: var(--dark-text);">
+                            <i class="fas fa-microscope" style="color: var(--primary-color); margin-right: 10px;"></i>
+                            Méthodes d'Explicabilité (XAI)
+                        </h4>
+                        <ul style="list-style: none; padding: 0; color: var(--light-text); line-height: 2.2;">
+                            <li><i class="fas fa-check-circle" style="color: var(--success-color); margin-right: 10px;"></i> <strong>Occlusion Sensitivity:</strong> Analyse par masquage</li>
+                            <li><i class="fas fa-check-circle" style="color: var(--success-color); margin-right: 10px;"></i> <strong>Integrated Gradients:</strong> Attribution précise</li>
+                            <li><i class="fas fa-check-circle" style="color: var(--success-color); margin-right: 10px;"></i> <strong>Grad-CAM:</strong> Cartes d'activation</li>
+                            <li><i class="fas fa-check-circle" style="color: var(--success-color); margin-right: 10px;"></i> <strong>Saliency Maps:</strong> Régions importantes</li>
+                            <li><i class="fas fa-check-circle" style="color: var(--success-color); margin-right: 10px;"></i> <strong>Feature Importance:</strong> Poids des caractéristiques</li>
+                            <li><i class="fas fa-check-circle" style="color: var(--success-color); margin-right: 10px;"></i> <strong>Consensus Multi-Méthodes:</strong> Décision robuste</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="feature-card fade-in" style="height: auto;">
+                        <h4 style="font-family: 'Poppins', sans-serif; font-weight: 700; margin-bottom: 25px; color: var(--dark-text);">
+                            <i class="fas fa- stethoscope" style="color: var(--accent-color); margin-right: 10px;"></i>
+                            Critères Diagnostiques (ABCDE)
+                        </h4>
+                        <ul style="list-style: none; padding: 0; color: var(--light-text); line-height: 2.2;">
+                            <li><i class="fas fa-circle" style="color: var(--primary-color); margin-right: 10px; font-size: 0.8rem;"></i> <strong>Asymétrie:</strong> Forme irrégulière</li>
+                            <li><i class="fas fa-circle" style="color: var(--primary-color); margin-right: 10px; font-size: 0.8rem;"></i> <strong>Bordures:</strong> Contours mal définis</li>
+                            <li><i class="fas fa-circle" style="color: var(--primary-color); margin-right: 10px; font-size: 0.8rem;"></i> <strong>Couleur:</strong> Pigmentation hétérogène</li>
+                            <li><i class="fas fa-circle" style="color: var(--primary-color); margin-right: 10px; font-size: 0.8rem;"></i> <strong>Diamètre:</strong> Taille supérieure à 6mm</li>
+                            <li><i class="fas fa-circle" style="color: var(--primary-color); margin-right: 10px; font-size: 0.8rem;"></i> <strong>Évolution:</strong> Changement dans le temps</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8 text-white mb-4 mb-md-0">
+                    <!-- Updated CTA badge and messaging for dermatology -->
+                    <div class="section-badge" style="background: rgba(232, 146, 124, 0.15); border-color: rgba(232, 146, 124, 0.3); margin-bottom: 20px;">
+                        <i class="fas fa-heartbeat"></i>
+                        <span style="color: var(--skin-peach);">Rejoignez la Révolution Dermatologique</span>
+                    </div>
+                    <h2 class="display-5 fw-bold mb-3" style="font-family: 'Poppins', sans-serif;">
+                        Optimisez Votre Pratique Dermatologique
+                    </h2>
+                    <p class="lead mb-0" style="opacity: 0.9; font-size: 1.2rem;">
+                        Des centaines de dermatologues utilisent déjà notre IA explicable pour améliorer
+                        la précision diagnostique, gagner du temps et offrir de meilleurs soins à leurs patients.
+                    </p>
+                </div>
+                <div class="col-md-4 text-center">
+                    {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('signup') }}" class="btn-medical btn-medical-success" style="padding: 18px 40px; font-size: 1.1rem;">
+                        <i class="fas fa-user-plus"></i> Créer Mon Compte
+                    </a>
+                    <p class="mt-3 mb-0" style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">
+                        Essai gratuit • Sans engagement
+                    </p>
+                    {% else %}
+                    <a href="{{ url_for('dashboard') }}" class="btn-medical" style="padding: 18px 40px; font-size: 1.1rem;">
+                        <i class="fas fa-microscope"></i> Analyser une Lésion
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="brand-section mb-3">
+                        <div class="brand-icon" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);">
+                            <i class="fas fa-microscope"></i>
+                        </div>
+                        <div class="brand-text">
+                            <h1 style="color: white; font-size: 1.5rem;">{{ app_name }}</h1>
+                            <p class="tagline" style="color: rgba(255,255,255,0.6);">Diagnostic Dermatologique par IA</p>
+                        </div>
+                    </div>
+                    <p style="color: rgba(255,255,255,0.6); line-height: 1.7;">
+                        Solution professionnelle d'intelligence artificielle explicable pour l'analyse
+                        dermatologique et la détection des pathologies cutanées.
+                    </p>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h4 class="footer-title">Navigation</h4>
+                    <div class="footer-links">
+                        <a href="{{ url_for('index') }}"><i class="fas fa-home"></i> Accueil</a>
+                        <a href="#features"><i class="fas fa-star"></i> Fonctionnalités</a>
+                        {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                        <a href="{{ url_for('analysis_history') }}"><i class="fas fa-history"></i> Historique</a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h4 class="footer-title">Ressources Médicales</h4>
+                    <div class="footer-links">
+                        <a href="{{ url_for('medical_guidelines') if current_user.is_authenticated else '#' }}">
+                            <i class="fas fa-book-medical"></i> Guidelines Cliniques
+                        </a>
+                        <a href="#"><i class="fas fa-shield-alt"></i> Confidentialité RGPD</a>
+                        <a href="#"><i class="fas fa-file-contract"></i> Mentions Légales</a>
+                        <a href="#"><i class="fas fa-headset"></i> Support Médical</a>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h4 class="footer-title">Documentation</h4>
+                    <div class="footer-links">
+                        <a href="#"><i class="fas fa-code"></i> API Développeurs</a>
+                        <a href="#"><i class="fas fa-chart-bar"></i> Statistiques</a>
+                        <a href="#"><i class="fas fa-clipboard-list"></i> Changelog</a>
+                        <a href="#"><i class="fas fa-heartbeat"></i> Status Système</a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p style="font-size: 1rem; margin-bottom: 10px;">
+                    &copy; {{ current_year }} {{ app_name }} - Version {{ app_version }}. Tous droits réservés.
+                </p>
+                <p class="mb-0" style="font-size: 0.9rem; color: rgba(255,255,255,0.4);">
+                    <i class="fas fa-user-md"></i> Plateforme médicale réservée aux professionnels de santé.
+                    L'IA est un outil d'aide au diagnostic et ne remplace pas l'expertise clinique du dermatologue.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.medical-navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Generate random particles
+        const heroParticles = document.querySelector('.hero-particles');
+        for (let i = 0; i < 15; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            heroParticles.appendChild(particle);
+        }
+    </script>
+</body>
+</html>

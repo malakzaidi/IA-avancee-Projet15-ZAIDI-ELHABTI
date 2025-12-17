@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historique - {{ app_name }}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-bg: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .history-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .history-header {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .filters-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .form-control, .form-select {
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .history-table-container {
+            background: white;
+            border-radius: 15px;
+            padding: 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background: var(--light-bg);
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            color: var(--primary-color);
+            padding: 15px;
+            white-space: nowrap;
+        }
+
+        .table tbody tr {
+            transition: background 0.3s;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .table tbody td {
+            padding: 15px;
+            vertical-align: middle;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .diagnosis-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .confidence-badge {
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .btn-medical {
+            background: var(--secondary-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-medical:hover {
+            background: #2980b9;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-medical-sm {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+        }
+
+        .btn-medical-success {
+            background: var(--accent-color);
+        }
+
+        .btn-medical-warning {
+            background: var(--warning-color);
+        }
+
+        .pagination-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-top: 25px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .stats-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .table {
+                font-size: 0.9rem;
+            }
+
+            .table thead {
+                display: none;
+            }
+
+            .table tbody tr {
+                display: block;
+                margin-bottom: 15px;
+                border: 1px solid #dee2e6;
+                border-radius: 10px;
+            }
+
+            .table tbody td {
+                display: block;
+                text-align: right;
+                padding: 10px 15px;
+                border: none;
+                position: relative;
+            }
+
+            .table tbody td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-weight: 600;
+                color: var(--primary-color);
+            }
+
+            .btn-group {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="history-container">
+        <!-- Header -->
+        <div class="history-header">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1" style="color: var(--primary-color);">
+                        <i class="fas fa-history me-2"></i> Historique des Analyses
+                    </h2>
+                    <p class="text-muted mb-0">
+                        Archive complète de toutes vos analyses dermatologiques
+                    </p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('new_analysis') }}" class="btn-medical btn-medical-success">
+                        <i class="fas fa-plus-circle me-2"></i> Nouvelle Analyse
+                    </a>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats.total }}</div>
+                    <div class="stat-label">Analyses totales</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats.by_diagnosis|length }}</div>
+                    <div class="stat-label">Pathologies différentes</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-number">{{ '%0.1f'|format(stats.avg_confidence * 100) }}%</div>
+                    <div class="stat-label">Confiance moyenne</div>
+                </div>
+
+                <div class="stat-card">
+                    {% set validated = analyses.items|selectattr('validated_by_doctor')|list|length %}
+                    <div class="stat-number">{{ validated }}</div>
+                    <div class="stat-label">Validations médicales</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-card">
+            <form id="filterForm" method="get">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="search" class="form-label">Recherche</label>
+                        <input type="text" class="form-control" id="search" name="search"
+                               placeholder="ID, fichier, notes..." value="{{ search }}">
+                    </div>
+
+                    <div class="col-md-2">
+                        <label for="diagnosis" class="form-label">Diagnostic</label>
+                        <select class="form-select" id="diagnosis" name="diagnosis">
+                            <option value="">Tous</option>
+                            {% for class in classes %}
+                            <option value="{{ class }}" {% if diagnosis_filter == class %}selected{% endif %}>
+                                {{ class_display_names.get(class, class) }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label for="date_from" class="form-label">Date début</label>
+                        <input type="date" class="form-control" id="date_from" name="date_from"
+                               value="{{ date_from }}">
+                    </div>
+
+                    <div class="col-md-2">
+                        <label for="date_to" class="form-label">Date fin</label>
+                        <input type="date" class="form-control" id="date_to" name="date_to"
+                               value="{{ date_to }}">
+                    </div>
+
+                    <div class="col-md-3 d-flex align-items-end">
+                        <div class="d-flex gap-2 w-100">
+                            <button type="submit" class="btn-medical flex-grow-1">
+                                <i class="fas fa-filter me-2"></i> Filtrer
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetFilters()">
+                                <i class="fas fa-redo me-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- History Table -->
+        <div class="history-table-container">
+            {% if analyses.items %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID Analyse</th>
+                            <th>Date</th>
+                            <th>Patient</th>
+                            <th>Diagnostic</th>
+                            <th>Confiance</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for analysis in analyses.items %}
+                        <tr>
+                            <td data-label="ID Analyse">
+                                <strong>{{ analysis.analysis_id }}</strong>
+                            </td>
+                            <td data-label="Date">
+                                {{ analysis.created_at.strftime('%d/%m/%Y %H:%M') }}
+                            </td>
+                            <td data-label="Patient">
+                                <div>
+                                    <div>{{ analysis.patient_age }} ans, {{ analysis.patient_sex }}</div>
+                                    <small class="text-muted">{{ analysis.patient_localization or 'Non spécifié' }}</small>
+                                </div>
+                            </td>
+                            <td data-label="Diagnostic">
+                                <span class="diagnosis-badge"
+                                      style="background: {{ class_colors.get(analysis.predicted_class, '#6c757d') }}20;
+                                             color: {{ class_colors.get(analysis.predicted_class, '#6c757d') }};">
+                                    {{ class_display_names.get(analysis.predicted_class, analysis.predicted_class) }}
+                                </span>
+                            </td>
+                            <td data-label="Confiance">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress flex-grow-1" style="height: 8px;">
+                                        <div class="progress-bar"
+                                             style="width: {{ analysis.confidence * 100 }}%;
+                                                    background: {% if analysis.confidence > 0.8 %}#27ae60
+                                                              {% elif analysis.confidence > 0.6 %}#f39c12
+                                                              {% else %}#e74c3c{% endif %};">
+                                        </div>
+                                    </div>
+                                    <span class="small">{{ (analysis.confidence * 100)|round(1) }}%</span>
+                                </div>
+                            </td>
+                            <td data-label="Statut">
+                                {% if analysis.validated_by_doctor %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check-circle me-1"></i> Validé
+                                </span>
+                                {% elif analysis.feedback_rating %}
+                                <span class="badge bg-info">
+                                    <i class="fas fa-star me-1"></i> Noté ({{ analysis.feedback_rating }}/5)
+                                </span>
+                                {% else %}
+                                <span class="badge bg-secondary">
+                                    <i class="fas fa-clock me-1"></i> En attente
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td data-label="Actions">
+                                <div class="btn-group">
+                                    <a href="{{ url_for('view_analysis', analysis_id=analysis.analysis_id) }}"
+                                       class="btn-medical btn-medical-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if analysis.pdf_report_path %}
+                                    <a href="/api/download_pdf/{{ analysis.analysis_id }}"
+                                       class="btn-medical btn-medical-sm btn-medical-warning">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <h4 class="mb-3">Aucune analyse trouvée</h4>
+                <p class="text-muted mb-4">
+                    {% if search or diagnosis_filter or date_from or date_to %}
+                    Aucun résultat ne correspond à vos critères de recherche.
+                    {% else %}
+                    Vous n'avez pas encore effectué d'analyse.
+                    {% endif %}
+                </p>
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="{{ url_for('new_analysis') }}" class="btn-medical btn-medical-success">
+                        <i class="fas fa-plus-circle me-2"></i> Première analyse
+                    </a>
+                    {% if search or diagnosis_filter or date_from or date_to %}
+                    <button type="button" class="btn btn-outline-secondary" onclick="resetFilters()">
+                        <i class="fas fa-redo me-2"></i> Réinitialiser les filtres
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Pagination -->
+        {% if analyses.pages > 1 %}
+        <div class="pagination-container">
+            <nav aria-label="Navigation des pages">
+                <ul class="pagination justify-content-center mb-0">
+                    <!-- Previous page -->
+                    <li class="page-item {% if not analyses.has_prev %}disabled{% endif %}">
+                        <a class="page-link"
+                           href="{{ url_for('analysis_history', page=analyses.prev_num, search=search,
+                                           diagnosis=diagnosis_filter, date_from=date_from, date_to=date_to) }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    <!-- Page numbers -->
+                    {% for page_num in analyses.iter_pages(left_edge=2, left_current=2, right_current=3, right_edge=2) %}
+                        {% if page_num %}
+                            <li class="page-item {% if page_num == analyses.page %}active{% endif %}">
+                                <a class="page-link"
+                                   href="{{ url_for('analysis_history', page=page_num, search=search,
+                                                   diagnosis=diagnosis_filter, date_from=date_from, date_to=date_to) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- Next page -->
+                    <li class="page-item {% if not analyses.has_next %}disabled{% endif %}">
+                        <a class="page-link"
+                           href="{{ url_for('analysis_history', page=analyses.next_num, search=search,
+                                           diagnosis=diagnosis_filter, date_from=date_from, date_to=date_to) }}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="text-center mt-3 text-muted small">
+                Page {{ analyses.page }} sur {{ analyses.pages }}
+                • {{ analyses.total }} analyses au total
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Export Section -->
+        {% if analyses.items %}
+        <div class="filters-card mt-4">
+            <h5 class="mb-3" style="color: var(--primary-color);">
+                <i class="fas fa-download me-2"></i> Export des données
+            </h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <button type="button" class="btn btn-outline-primary w-100" onclick="exportCSV()">
+                        <i class="fas fa-file-csv me-2"></i> Exporter en CSV
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button type="button" class="btn btn-outline-success w-100" onclick="exportExcel()">
+                        <i class="fas fa-file-excel me-2"></i> Exporter en Excel
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button type="button" class="btn btn-outline-danger w-100" onclick="exportPDFReport()">
+                        <i class="fas fa-file-pdf me-2"></i> Rapport PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+            <h4 class="mt-3 mb-2">Export en cours...</h4>
+            <p class="text-muted mb-0">Préparation de votre fichier</p>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize date pickers
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date_to').max = today;
+
+            // Set default date range (last 30 days)
+            if (!document.getElementById('date_from').value) {
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                document.getElementById('date_from').value = thirtyDaysAgo.toISOString().split('T')[0];
+            }
+
+            if (!document.getElementById('date_to').value) {
+                document.getElementById('date_to').value = today;
+            }
+        });
+
+        function resetFilters() {
+            window.location.href = "{{ url_for('analysis_history') }}";
+        }
+
+        function exportCSV() {
+            showLoading();
+
+            // In a real application, this would make an API call
+            setTimeout(() => {
+                hideLoading();
+
+                // Create CSV content
+                const headers = ['ID', 'Date', 'Âge', 'Sexe', 'Diagnostic', 'Confiance', 'Validé'];
+                const rows = [];
+
+                {% for analysis in analyses.items %}
+                rows.push([
+                    '{{ analysis.analysis_id }}',
+                    '{{ analysis.created_at.strftime("%d/%m/%Y %H:%M") }}',
+                    {{ analysis.patient_age or '""' }},
+                    '{{ analysis.patient_sex or "" }}',
+                    '{{ class_display_names.get(analysis.predicted_class, analysis.predicted_class) }}',
+                    {{ analysis.confidence }},
+                    '{{ "Oui" if analysis.validated_by_doctor else "Non" }}'
+                ]);
+                {% endfor %}
+
+                const csvContent = [headers, ...rows]
+                    .map(row => row.map(cell => `"${cell}"`).join(','))
+                    .join('\n');
+
+                // Download CSV
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+
+                link.setAttribute('href', url);
+                link.setAttribute('download', `historique_analyses_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                showAlert('success', 'Export CSV terminé !');
+            }, 1500);
+        }
+
+        function exportExcel() {
+            showLoading();
+
+            // In a real application, this would make an API call
+            setTimeout(() => {
+                hideLoading();
+                showAlert('info', 'Export Excel disponible dans la version pro');
+            }, 1500);
+        }
+
+        function exportPDFReport() {
+            showLoading();
+
+            // In a real application, this would make an API call
+            setTimeout(() => {
+                hideLoading();
+
+                // Create a comprehensive PDF report
+                const reportWindow = window.open('', '_blank');
+                reportWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Rapport Historique - {{ app_name }}</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; padding: 20px; }
+                            h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+                            .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
+                            .stat { text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px; }
+                            .stat-number { font-size: 24px; font-weight: bold; color: #3498db; }
+                            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                            th { background: #2c3e50; color: white; padding: 10px; text-align: left; }
+                            td { padding: 10px; border-bottom: 1px solid #ddd; }
+                            .footer { margin-top: 40px; color: #7f8c8d; font-size: 12px; text-align: center; }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>Rapport Historique des Analyses</h1>
+                        <p>Généré le ${new Date().toLocaleDateString('fr-FR')} par {{ user.full_name }}</p>
+
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-number">{{ stats.total }}</div>
+                                <div>Analyses totales</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-number">{{ stats.by_diagnosis|length }}</div>
+                                <div>Pathologies</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-number">{{ '%0.1f'|format(stats.avg_confidence * 100) }}%</div>
+                                <div>Confiance moyenne</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-number">{{ analyses.items|selectattr('validated_by_doctor')|list|length }}</div>
+                                <div>Validations</div>
+                            </div>
+                        </div>
+
+                        <h2>Détail des analyses</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Date</th>
+                                    <th>Diagnostic</th>
+                                    <th>Confiance</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for analysis in analyses.items %}
+                                <tr>
+                                    <td>{{ analysis.analysis_id }}</td>
+                                    <td>{{ analysis.created_at.strftime('%d/%m/%Y') }}</td>
+                                    <td>{{ class_display_names.get(analysis.predicted_class, analysis.predicted_class) }}</td>
+                                    <td>{{ (analysis.confidence * 100)|round(1) }}%</td>
+                                    <td>{% if analysis.validated_by_doctor %}Validé{% else %}En attente{% endif %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        <div class="footer">
+                            <p>&copy; {{ current_year }} {{ app_name }} - Document confidentiel médical</p>
+                            <p>Ce rapport est généré automatiquement. L'IA est un outil d'aide au diagnostic.</p>
+                        </div>
+                    </body>
+                    </html>
+                `);
+
+                reportWindow.document.close();
+
+                showAlert('success', 'Rapport PDF généré dans un nouvel onglet');
+            }, 2000);
+        }
+
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        function showAlert(type, message) {
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-info';
+            const alert = document.createElement('div');
+            alert.className = `alert ${alertClass} alert-dismissible fade show`;
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            alert.style.position = 'fixed';
+            alert.style.top = '20px';
+            alert.style.right = '20px';
+            alert.style.zIndex = '9999';
+            alert.style.minWidth = '300px';
+
+            document.body.appendChild(alert);
+
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
